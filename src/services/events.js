@@ -7,11 +7,6 @@ let events = [
         end:   '10-31T23:59:00',
         name:  'halloween'
     },
-    {
-        start: '11-24T00:00:00',
-        end:   '11-30T23:59:00',
-        name:  'black-friday'
-    },
 
     // Новогодние
     {
@@ -23,11 +18,6 @@ let events = [
         start: '01-01T00:00:00',
         end:   '01-03T23:59:00',
         name:  'new-year'
-    },
-    {
-        start: '03-06T00:00:00',
-        end:   '03-10T23:59:00',
-        name:  'womens-day'
     }
 ]
 
