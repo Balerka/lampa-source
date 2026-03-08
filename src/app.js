@@ -130,15 +130,7 @@ window.screen_height = window.innerHeight
  */
 
 if(typeof window.lampa_settings == 'undefined'){
-    window.lampa_settings = {
-        account_service_name: 'MyAuth',
-        account_premium_name: 'MyAuth',
-        account_site: 'auth.example.com',
-        account_domain: 'api.example.com',
-        account_assets_domain: 'api.example.com',
-        account_socket_use: false,
-        account_premium_always: true,
-    }
+    window.lampa_settings = {}
 }
 
 let torrents_use = true
