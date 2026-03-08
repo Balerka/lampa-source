@@ -5,6 +5,9 @@ process.on('uncaughtException', function (err) {
 
 
 const { src, dest, series, parallel } = require('gulp');
+const through = require('through2');
+const PluginError = require('plugin-error');
+const sassCompiler = require('sass');
 
 var concat         = require('gulp-concat'),
     chokidar       = require('chokidar'),
@@ -12,7 +15,6 @@ var concat         = require('gulp-concat'),
     uglifycss      = require('gulp-uglifycss'),
     browser        = require('browser-sync').create(),
     newer          = require('gulp-newer'),
-    sass           = require('gulp-sass')(require('sass')),
     autoprefixer   = require('gulp-autoprefixer'),
     fileinclude    = require('gulp-file-include'),
     replace        = require('gulp-replace'),
@@ -48,6 +50,40 @@ var plgFolder = './plugins/';
 var docFolder = './build/doc/';
 
 var isDebugEnabled = false;
+
+var sassLoadPaths = [path.resolve(__dirname, srcFolder + 'sass')];
+
+function compileSass(options = {}) {
+    return through.obj(function(file, enc, callback) {
+        if (file.isNull()) return callback(null, file);
+
+        if (file.isStream()) {
+            return callback(new PluginError('sass-modern', 'Streaming is not supported'));
+        }
+
+        try {
+            let result = sassCompiler.compile(file.path, {
+                charset: false,
+                loadPaths: sassLoadPaths,
+                style: 'expanded',
+                ...options
+            });
+
+            file.contents = Buffer.from(result.css);
+            file.path = file.path.replace(/\.scss$/, '.css');
+
+            callback(null, file);
+        }
+        catch (error) {
+            callback(new PluginError('sass-modern', error.formatted || error.message));
+        }
+    });
+}
+
+function handleSassError(error) {
+    console.error(error.message);
+    this.emit('end');
+}
 
 function merge(done) {
     let plugins = [babel({
@@ -134,7 +170,9 @@ function plugins(done) {
     }).forEach(folder => {
         bubbleFile(folder+'/'+folder+'.js')
 
-        plugin_sass(plgFolder+'/'+folder)
+        if (fs.existsSync(plgFolder+'/'+folder+'/css')) {
+            plugin_sass(plgFolder+'/'+folder)
+        }
     });
       
     done();
@@ -142,7 +180,7 @@ function plugins(done) {
 
 function plugin_sass(plugin_src){
     return src(plugin_src+'/css/*.scss')
-        .pipe(sass.sync().on('error', sass.logError)) // Преобразуем Sass в CSS посредством gulp-sass
+        .pipe(compileSass().on('error', handleSassError))
         .pipe(autoprefixer(['last 100 versions', '> 1%', 'ie 8', 'ie 7', 'ios 6', 'android 4'], { cascade: true })) // Создаем префиксы
         .pipe(uglifycss({
             "maxLineLen": 80,
@@ -264,7 +302,11 @@ function sync_doc(){
 
 /** Следим за изменениями в файлах **/
 function watch(done){
-    var watcher = chokidar.watch([srcFolder,pubFolder,plgFolder], { persistent: true, ignored: [pubFolder + '/lang']});
+    var watcher = chokidar.watch([srcFolder,pubFolder,plgFolder], {
+        persistent: true,
+        ignored: [pubFolder + '/lang'],
+        ignoreInitial: true
+    });
 
     var timer;
     var change = function(path){
@@ -310,8 +352,8 @@ function browser_sync(done) {
 }
 
 function sass_task(){
-    return src(srcFolder+'/sass/*.scss')
-        .pipe(sass.sync().on('error', sass.logError)) // Преобразуем Sass в CSS посредством gulp-sass
+    return src([srcFolder+'/sass/*.scss', '!' + srcFolder + '/sass/_*.scss'])
+        .pipe(compileSass().on('error', handleSassError))
         .pipe(autoprefixer(['last 100 versions', '> 1%', 'ie 8', 'ie 7', 'ios 6', 'android 4'], { cascade: true })) // Создаем префиксы
         .pipe(dest(pubFolder+'/css'))
         .pipe(browser.reload({stream: true}))

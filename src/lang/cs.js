@@ -1144,12 +1144,6 @@ export default {
     install_app_apk_qr: 'Naskenujte QR kód a stáhněte si APK Lampy',
     copy_link_buffer: 'Kopírovat odkaz',
 
-    ad: "Reklama",
-    ad_disable: "Předplatným CUB Premium zapomenete na reklamu.",
-    ad_after: "Reklama za",
-    ad_skip: "Přeskočit",
-    ad_continue_after: "Sledování začne za",
-
     discuss_rules_title: "Dodržujte pravidla a respektujte ostatní — vytváříme pohodlí společně!",
     discuss_rules_rule_1: "Nepoužívejte slova složená pouze z čísel.",
     discuss_rules_rule_2: "Pište v jednom jazyce, používejte slova z 5 a více písmen.",
@@ -1198,7 +1192,6 @@ export default {
     install_extension_rule_5: '- Instalujte pouze pluginy z důvěryhodných zdrojů. Pokud máte pochybnosti o bezpečnosti nebo legálnosti pluginu, raději jej neinstalujte.',
     install_extension_rule_6: 'LAMPA nepodporuje ani neschvaluje pluginy související s pirátským obsahem.',
     install_extension_rule_7: 'Pokračováním potvrzujete, že rozumíte těmto rizikům.',
-    ad_plugin: 'Reklama z pluginu',
 
     terminal_title: 'Terminál',
     terminal_no_access: 'Bez přístupu',
@@ -1238,7 +1231,6 @@ export default {
     developer_param_enabled: 'Režim vývojáře',
     developer_param_nopremium: 'Vypnout CUB Premium',
     developer_param_nodemo: 'Vypnout demo režim',
-    developer_param_ads: 'Zobrazovat reklamy',
     developer_param_fps: 'Zobrazovat FPS',
     developer_trigger_help_1: 'Téměř jste to uhodli :)',
     developer_trigger_help_2: 'Ještě trochu :)',
@@ -1254,7 +1246,6 @@ export default {
     account_premium: 'Odemkněte nové možnosti s účtem CUB Premium! Užijte si vyšší limity a rozšířené funkce služby. Navštivte <span class="account-modal__site">{site}/premium</span> a zjistěte více o výhodách prémiového účtu.',
     player_segments_title: 'Segmenty',
     player_segments_descr: 'Přeskočit úvod a další části videa',
-    player_segments_ad_title: 'Reklamy',
     player_segments_skip_title: 'Úvod a další',
     player_segments_value_none: 'Nepřeskakovat',
     player_segments_value_auto: 'Automaticky přeskočit',

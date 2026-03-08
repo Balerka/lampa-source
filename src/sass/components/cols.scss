@@ -1,3 +1,5 @@
+@use "globals" as *;
+
 @use "sass:math";
 
 @mixin generate-cols($max: 6) {

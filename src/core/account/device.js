@@ -80,7 +80,7 @@ function login(callback){
 
         html.addClass('layer--' + (Platform.mouse() ? 'wheight' : 'height'))
 
-        Utils.qrcode('https://' +  Manifest.cub_site + '/add', code, ()=>{
+        Utils.qrcode('https://' +  Manifest.account_site + '/add', code, ()=>{
             code.remove()
             img.removeClass('hide')
 

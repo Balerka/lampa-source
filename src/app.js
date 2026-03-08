@@ -75,7 +75,6 @@ import Developer from './interaction/developer'
 import DeviceInput from './interaction/device_input'
 import AppWorker from './utils/worker'
 import Theme from './core/theme'
-import AdManager from './interaction/advert/manager'
 import DB from './utils/db'
 import NavigationBar from './interaction/navigation_bar'
 import Endless from './interaction/endless'
@@ -131,7 +130,15 @@ window.screen_height = window.innerHeight
  */
 
 if(typeof window.lampa_settings == 'undefined'){
-    window.lampa_settings = {}
+    window.lampa_settings = {
+        account_service_name: 'MyAuth',
+        account_premium_name: 'MyAuth',
+        account_site: 'auth.example.com',
+        account_domain: 'api.example.com',
+        account_assets_domain: 'api.example.com',
+        account_socket_use: false,
+        account_premium_always: true,
+    }
 }
 
 let torrents_use = true
@@ -157,6 +164,27 @@ Arrays.extend(window.lampa_settings,{
 
     // Использовать аккаунты CUB
     account_use: true,
+
+    // Отображаемое имя сервиса авторизации и синхронизации
+    account_service_name: undefined,
+
+    // Отображаемое имя полного доступа
+    account_premium_name: undefined,
+
+    // Домен сайта, где пользователь авторизуется и получает коды привязки
+    account_site: undefined,
+
+    // Домен API для авторизации, профилей, закладок, таймкодов и бэкапов
+    account_domain: undefined,
+
+    // Домен для ассетов аккаунта: QR-заглушки, иконки профилей и т.д.
+    account_assets_domain: undefined,
+
+    // Использовать сокет для проверки токена и realtime-синхронизации аккаунта
+    account_socket_use: false,
+
+    // Полный доступ всегда включен, без ограничений CUB Premium
+    account_premium_always: true,
 
     // Синхронизировать закладки, таймкоды и прочее
     account_sync: true,
@@ -585,9 +613,6 @@ function startApp(){
 
     Theme.init()
     LoadingProgress.status('Theme init')
-
-    AdManager.init()
-    LoadingProgress.status('AdManager init')
 
     NavigationBar.init()
     LoadingProgress.status('NavigationBar init')

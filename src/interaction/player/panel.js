@@ -814,11 +814,6 @@ function selectSubs(){
 function selectSegments(){
     let items = [
         {
-            title: Lang.translate('player_segments_ad_title'),
-            name: 'ad',
-            subtitle: Lang.translate('player_segments_value_' + Storage.get('player_segments_ad', 'auto')),
-        },
-        {
             title: Lang.translate('player_segments_skip_title'),
             name: 'skip',
             subtitle: Lang.translate('player_segments_value_' + Storage.get('player_segments_skip', 'auto')),

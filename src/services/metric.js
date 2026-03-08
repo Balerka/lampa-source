@@ -10,10 +10,7 @@ function init(){
     let date  = today.toISOString().split('T')[0]
 
     if(Storage.get('metric_date') !== date){
-        if(Storage.get('metric_adview', 0) > 0) histogram('adview', Storage.get('metric_adview', 0))
-        
         Storage.set('metric_date', date)
-        Storage.set('metric_adview', 0)
     }
 
     if(!Storage.get('metric_uid', '')) Storage.set('metric_uid', Utils.uid())
@@ -29,10 +26,6 @@ function init(){
     function playerStat(data){
         if(!data.iptv){
             counter('player_start', Platform.get(), data.stat_from, data.torrent_hash ? 'torrent' : data.youtube ? 'youtube' : data.continue_play ? 'continue' : 'online')
-
-            if(data.vast_url){
-                counter('player_vast_url', Storage.get('activity', '{}').component || 'none', data.continue_play ? 'continue' : 'start')
-            } 
         }
     }
 

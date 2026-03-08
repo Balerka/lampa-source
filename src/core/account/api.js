@@ -9,7 +9,7 @@ import Modal from './modal'
 let network = new Reguest()
 
 function url(){
-    return Utils.protocol() + Manifest.cub_domain + '/api/'
+    return Utils.protocol() + Manifest.account_domain + '/api/'
 }
 
 function load(path, params = {}, post = false){

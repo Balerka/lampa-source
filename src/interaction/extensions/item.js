@@ -1,6 +1,7 @@
 import Template from '../template'
 import Lang from '../../core/lang'
 import Plugins from '../../core/plugins'
+import Manifest from '../../core/manifest'
 
 class Item{
     constructor(data, params){
@@ -59,7 +60,7 @@ class Item{
 
         let premium = document.createElement('span')
             premium.classList.add('extensions__item-premium')
-            premium.innerText = 'CUB Premium'
+            premium.innerText = Manifest.account_premium_name
 
         let where = author || this.html
 

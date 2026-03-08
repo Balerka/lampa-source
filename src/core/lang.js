@@ -47,8 +47,10 @@ function translate(name, custom_code){
         result = langs[code][name] || langs[lang_default][name] || name
     }
 
-    result = result.replace(/{site}/g, Manifest.cub_site)
+    result = result.replace(/{site}/g, Manifest.account_site)
     result = result.replace(/{mirror}/g, Utils.protocol() + Manifest.cub_domain)
+    result = result.replace(/{account_service}/g, Manifest.account_service_name)
+    result = result.replace(/{premium_service}/g, Manifest.account_premium_name)
 
     return result
 }

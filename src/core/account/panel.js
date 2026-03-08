@@ -19,13 +19,13 @@ function init(){
 function render(body){
     let account = Permit.account
     let signed  = Boolean(Permit.token)
-    let premium = Utils.countDays(Date.now(), Permit.user.premium)
+    let premium = window.lampa_settings.account_premium_always !== false || Utils.countDays(Date.now(), Permit.user.premium)
 
     if(!window.lampa_settings.account_sync){
         body.find('[data-name="account_use"]').remove()
     }
 
-    Utils.qrcode('https://' + Manifest.cub_site, body.find('.ad-server__qr'))
+    Utils.qrcode('https://' + Manifest.account_site, body.find('.ad-server__qr'))
 
     
     body.find('.settings--account-signin').toggleClass('hide',signed)

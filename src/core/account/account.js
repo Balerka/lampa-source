@@ -16,6 +16,10 @@ import Timer from '../timer'
 let network = new Reguest()
 let user_data
 
+function useAccountSocket(){
+    return window.lampa_settings.account_socket_use
+}
+
 
 /**
  * Запуск
@@ -31,9 +35,9 @@ function init(){
     Panel.init()
     Device.init()
 
-    Socket.listener.follow('open', checkAccountValidity)
+    if(useAccountSocket()) Socket.listener.follow('open', checkAccountValidity)
 
-    Timer.add(1000 * 60 * 10, checkAccountValidity)
+    if(useAccountSocket()) Timer.add(1000 * 60 * 10, checkAccountValidity)
 
     Profile.check(()=>{
         Api.user(user=>user_data = user)
@@ -64,7 +68,7 @@ function task(call){
  * @return {void}
  */
 function checkAccountValidity(){
-    Permit.token && Socket.send('check_token',{})
+    if(useAccountSocket() && Permit.token) Socket.send('check_token',{})
 }
 
 /**
@@ -207,6 +211,8 @@ Object.defineProperty(Account, 'hasPremium', {
         let user = user_data || Storage.get('account_user','{}')
 
         if(Storage.get('developer_nopremium', 'false')) return 0
+
+        if(window.lampa_settings.account_premium_always !== false) return 9999
 
         return user.id ? Utils.countDays(Date.now(), user.premium) : 0
     },

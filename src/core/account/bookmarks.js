@@ -25,6 +25,10 @@ let tracker_data  = {
 
 let update_timer
 
+function useAccountSocket(){
+    return window.lampa_settings.account_socket_use
+}
+
 /**
  * Запуск
  * @return {void}
@@ -95,7 +99,7 @@ function push(method, type, card){
             update_timer = setTimeout(()=>{
                 update(()=>{
                     // Оповещаем другие устройства о изменении закладок
-                    Socket.send('bookmarks',{}) 
+                    if(useAccountSocket()) Socket.send('bookmarks',{}) 
 
                     // Глобальное оповещение об изменении закладок для обновления карточек
                     Lampa.Listener.send('state:changed', {
@@ -320,7 +324,7 @@ function clear(where){
         }).then(()=>{
             update(()=>{
                 // Оповещаем другие устройства о изменении закладок
-                Socket.send('bookmarks',{}) 
+                if(useAccountSocket()) Socket.send('bookmarks',{}) 
 
                 // Глобальное оповещение об изменении закладок для обновления карточек
                 Lampa.Listener.send('state:changed', {

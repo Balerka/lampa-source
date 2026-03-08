@@ -20,3 +20,9 @@ temp/
 package-lock.json
 src/utils/api/okko.js
 .DS_Store
+.AGENTS.md
+.run
+public/css/app.css
+plugins/*/css/style.css
+public/lang/*.js
+build/doc/

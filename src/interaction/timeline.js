@@ -9,6 +9,10 @@ import Activity from './activity/activity'
 let listener = Subscribe(), 
     viewed
 
+function useAccountSocket(){
+    return window.lampa_settings.account_socket_use
+}
+
 /**
  * Инициализация
  * @returns {void}
@@ -106,7 +110,7 @@ function update(params){
         data:{ hash: params.hash, road }
     })
 
-    if(!params.received && Account.hasPremium()) Socket.send('timeline',{params})
+    if(!params.received && Account.hasPremium() && useAccountSocket()) Socket.send('timeline',{params})
 }
 
 /**

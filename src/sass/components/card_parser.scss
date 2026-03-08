@@ -1,3 +1,7 @@
+@use "globals" as *;
+
+@use "sass:math";
+
 .card-parser{
     padding: math.div($offset, 2);
     flex-shrink: 0;

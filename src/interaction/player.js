@@ -19,7 +19,6 @@ import Arrays from '../utils/arrays'
 import Background from './background'
 import TV from './player/iptv' 
 import ParentalControl from './parental_control'
-import Preroll from './advert/preroll'
 import Footer from './player/footer'
 import Segments from './player/segments'
 import VLC from '../core/vlc.js'
@@ -739,11 +738,9 @@ function start(data, need, inner){
         })
 
         if (external_url) {
-            Preroll.show(data,()=>{
-                listener.send('external',data)
+            listener.send('external',data)
 
-                window.location.assign(external_url)
-            })
+            window.location.assign(external_url)
         }
         else if(Storage.field(player_need) == 'ios'){
             html.addClass('player--ios')
@@ -761,11 +758,9 @@ function start(data, need, inner){
         })
 
         if (external_url) {
-            Preroll.show(data,()=>{
-                listener.send('external',data)
+            listener.send('external',data)
 
-                window.location.assign(external_url)
-            })
+            window.location.assign(external_url)
         }
         else inner()
     }
@@ -784,25 +779,21 @@ function start(data, need, inner){
         })
 
         if (external_url) {
-            Preroll.show(data,()=>{
-                listener.send('external',data)
+            listener.send('external',data)
 
-                window.location.assign(external_url)
-            })
+            window.location.assign(external_url)
         }
         else inner()
     }
     else if(Platform.is('webos') && (Storage.field(player_need) == 'webos' || launch_player == 'webos')){
-        Preroll.show(data,()=>{
-            runWebOS({
-                need: 'com.webos.app.photovideo',
-                url: data.url.replace('&preload','&play'),
-                name: data.path || data.title,
-                position: data.timeline ? (data.timeline.time || -1) : -1
-            })
-
-            listener.send('external',data)
+        runWebOS({
+            need: 'com.webos.app.photovideo',
+            url: data.url.replace('&preload','&play'),
+            name: data.path || data.title,
+            position: data.timeline ? (data.timeline.time || -1) : -1
         })
+
+        listener.send('external',data)
     } 
     else if(Platform.is('android') && (Storage.field(player_need) == 'android' || launch_player == 'android' || data.torrent_hash)){
         data.url   = data.url.replace('&preload','&play')
@@ -817,39 +808,41 @@ function start(data, need, inner){
             })
         }
 
-        Preroll.show(data,()=>{
-            data.position = data.timeline ? (data.timeline.time || -1) : -1
+        data.position = data.timeline ? (data.timeline.time || -1) : -1
 
-            Android.openPlayer(data.url, data)
+        Android.openPlayer(data.url, data)
 
-            listener.send('external',data)
-        })
+        listener.send('external',data)
     }
     else if(Platform.desktop() && Storage.field(player_need) == 'other'){
         const path = Storage.field('player_nw_path')
         const isVLC = path.toLowerCase().indexOf('vlc') !== -1
 
-        Preroll.show(data,()=>{
-            const url = data.url.replace('&preload','&play')
-            if (isVLC) {
-                // Запускаем VLC с API интеграцией
-                const vlcOptions = {
-                    password: Storage.field('vlc_api_password'),
-                    fullscreen: Storage.field('vlc_fullscreen')
-                }
-                VLC.openPlayer(url, data, vlcOptions)
-            } else {
-                const file = require('fs')
-                if (file.existsSync(path)) {
-                    // Обычный запуск для других плееров
-                    const spawn = require('child_process').spawn
-                    spawn(path, [encodeURI(url)])
-                } else {
-                    Noty.show(Lang.translate('player_not_found') + ': ' + path)
-                }
+        const url = data.url.replace('&preload','&play')
+
+        if (isVLC) {
+            // Запускаем VLC с API интеграцией
+            const vlcOptions = {
+                password: Storage.field('vlc_api_password'),
+                fullscreen: Storage.field('vlc_fullscreen')
             }
-            listener.send('external', data)
-        })
+
+            VLC.openPlayer(url, data, vlcOptions)
+        }
+        else {
+            const file = require('fs')
+
+            if (file.existsSync(path)) {
+                // Обычный запуск для других плееров
+                const spawn = require('child_process').spawn
+                spawn(path, [encodeURI(url)])
+            }
+            else {
+                Noty.show(Lang.translate('player_not_found') + ': ' + path)
+            }
+        }
+
+        listener.send('external', data)
     }
     else inner()
 }
@@ -921,66 +914,64 @@ function play(data){
     let lauch = ()=>{
         work = data
 
-        Preroll.show(data,()=>{
-            Background.theme('black')
+        Background.theme('black')
 
-            $('body').addClass('player--viewing')
+        $('body').addClass('player--viewing')
 
-            preload(data, ()=>{
-                html.toggleClass('tv',data.tv ? true : false)
+        preload(data, ()=>{
+            html.toggleClass('tv',data.tv ? true : false)
 
-                html.toggleClass('youtube', Boolean(data.url.indexOf('youtube.com') >= 0))
+            html.toggleClass('youtube', Boolean(data.url.indexOf('youtube.com') >= 0))
 
-                listener.send('start',data)
+            listener.send('start',data)
 
-                Storage.set('player_subs_shift_time', '0')
+            Storage.set('player_subs_shift_time', '0')
 
-                if(work.timeline) work.timeline.continued = false
+            if(work.timeline) work.timeline.continued = false
 
-                Segments.set(data.segments)
+            Segments.set(data.segments)
 
-                Playlist.url(data.url)
+            Playlist.url(data.url)
 
-                Playlist.set(Playlist.get()) //надо повторно отправить, а то после рекламы неправильно показывает
+            Playlist.set(Playlist.get())
 
-                Panel.quality(data.quality,data.url)
+            Panel.quality(data.quality,data.url)
 
-                if(data.translate) Panel.setTranslate(data.translate)
+            if(data.translate) Panel.setTranslate(data.translate)
 
-                Video.url(data.url)
+            Video.url(data.url)
 
-                Video.size(Storage.get('player_size','default'))
+            Video.size(Storage.get('player_size','default'))
 
-                Video.speed(Storage.get('player_speed','default'))
+            Video.speed(Storage.get('player_speed','default'))
 
-                if(data.subtitles) Video.customSubs(data.subtitles)
-                if(data.voiceovers) Panel.setTracks(data.voiceovers)
+            if(data.subtitles) Video.customSubs(data.subtitles)
+            if(data.voiceovers) Panel.setTracks(data.voiceovers)
 
-                Info.set('name',data.title)
+            Info.set('name',data.title)
 
-                if(!data.iptv){
-                    if(data.card) Footer.appendAbout(data.card)
-                    else{
-                        Lampa.Activity.active().movie && Footer.appendAbout(Lampa.Activity.active().movie)
-                    }
+            if(!data.iptv){
+                if(data.card) Footer.appendAbout(data.card)
+                else{
+                    Lampa.Activity.active().movie && Footer.appendAbout(Lampa.Activity.active().movie)
                 }
-                
-                if(!preloader.call) {
-                    is_opened = true
+            }
+            
+            if(!preloader.call) {
+                is_opened = true
 
-                    $('body').append(html)
-                }
+                $('body').append(html)
+            }
 
-                toggle()
+            toggle()
 
-                Panel.show(true)
+            Panel.show(true)
 
-                ask()
+            ask()
 
-                saveTimeLoop()
+            saveTimeLoop()
 
-                listener.send('ready',data)
-            })
+            listener.send('ready',data)
         })
     }
 
@@ -1019,12 +1010,7 @@ function iptv(data){
             listener.send('ready',data)
         }
 
-        let ads = ()=>{
-            if(data.vast_url) Preroll.show(data,lauch)
-            else lauch()
-        }
-
-        start(data, 'iptv', ads)
+        start(data, 'iptv', lauch)
     })
 }
 

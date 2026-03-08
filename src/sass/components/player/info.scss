@@ -1,3 +1,5 @@
+@use "globals" as *;
+
 .player-info{
     position: fixed;
     top: $offset;

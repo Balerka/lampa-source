@@ -1,3 +1,5 @@
+@use "globals" as *;
+
 body.touch-device{
     .scroll{
         overflow: auto !important;

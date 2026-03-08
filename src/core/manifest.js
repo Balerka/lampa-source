@@ -8,6 +8,13 @@ let object = {
 }
 
 let plugins = []
+let settings = ()=> window.lampa_settings || {}
+
+function readStringSetting(name, fallback){
+    let value = settings()[name]
+
+    return typeof value == 'string' && value.trim() ? value.trim() : fallback
+}
 
 Object.defineProperty(object, 'app_digital', { get: ()=> parseInt(object.app_version.replace(/\./g,'')) })
 Object.defineProperty(object, 'css_digital', { get: ()=> parseInt(object.css_version.replace(/\./g,'')) })
@@ -19,6 +26,16 @@ Object.defineProperty(object, 'plugins', {
             plugins.push(plugin)
         }
     }
+})
+
+Object.defineProperty(object, 'account_service_name', {
+    get: ()=> readStringSetting('account_service_name', 'CUB'),
+    set: ()=> {}
+})
+
+Object.defineProperty(object, 'account_premium_name', {
+    get: ()=> readStringSetting('account_premium_name', object.account_service_name + ' Premium'),
+    set: ()=> {}
 })
 
 /**
@@ -79,12 +96,27 @@ Object.defineProperty(object, 'cub_domain', {
     } 
 })
 
+Object.defineProperty(object, 'account_site', {
+    get: ()=> readStringSetting('account_site', object.cub_site),
+    set: ()=> {}
+})
+
+Object.defineProperty(object, 'account_domain', {
+    get: ()=> readStringSetting('account_domain', object.cub_domain),
+    set: ()=> {}
+})
+
+Object.defineProperty(object, 'account_assets_domain', {
+    get: ()=> readStringSetting('account_assets_domain', object.cub_domain),
+    set: ()=> {}
+})
+
 /**
  * Ссылка на сайт CUB
  */
 Object.defineProperty(object, 'qr_site', { 
     get: ()=> {
-        return object.cub_domain+'/img/other/qr-code-strong.png'
+        return object.account_assets_domain + '/img/other/qr-code-strong.png'
     } 
 })
 
@@ -93,7 +125,7 @@ Object.defineProperty(object, 'qr_site', {
  */
 Object.defineProperty(object, 'qr_device_add', { 
     get: ()=> {
-        return object.cub_domain+'/img/other/qr-add-device.png'
+        return object.account_assets_domain + '/img/other/qr-add-device.png'
     } 
 })
 

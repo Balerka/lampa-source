@@ -32,7 +32,7 @@ function account(){
 
         html.addClass('layer--' + (Platform.mouse() ? 'wheight' : 'height'))
 
-        Utils.qrcode('https://' +  Manifest.cub_site + '/#signup', code, ()=>{
+        Utils.qrcode('https://' +  Manifest.account_site + '/#signup', code, ()=>{
             code.remove()
             img.removeClass('hide')
 
@@ -76,7 +76,7 @@ function premium(){
     if(Platform.tv()){
         html.addClass('layer--' + (Platform.mouse() ? 'wheight' : 'height'))
         
-        Utils.qrcode('https://' +  Manifest.cub_site + '/premium', html.find('.account-modal-split__qr-code'), ()=>{
+        Utils.qrcode('https://' +  Manifest.account_site + '/premium', html.find('.account-modal-split__qr-code'), ()=>{
             html.find('.account-modal-split__qr').remove()
         })
     }

@@ -47,7 +47,7 @@ function update(){
     if(Permit.token){
         profile_icon.append(Template.elem('img'))
 
-        Utils.imgLoad(profile_icon.find('img'), Utils.protocol() + Manifest.cub_domain + '/img/profiles/' + (Permit.account.profile.icon || 'l_1') + '.png', ()=>{}, (img)=>{
+        Utils.imgLoad(profile_icon.find('img'), Utils.protocol() + Manifest.account_assets_domain + '/img/profiles/' + (Permit.account.profile.icon || 'l_1') + '.png', ()=>{}, (img)=>{
             img.src = './img/img_load.svg'
         })
     }
@@ -123,7 +123,7 @@ function select(callback){
                 let list = items.map((elem, index)=>{
                     elem.title    = elem.name
                     elem.template = 'selectbox_icon'
-                    elem.icon     = '<img src="' + Utils.protocol() + Manifest.cub_domain +'/img/profiles/'+elem.icon+'.png" />'
+                    elem.icon     = '<img src="' + Utils.protocol() + Manifest.account_assets_domain +'/img/profiles/'+elem.icon+'.png" />'
                     elem.clone    = clone[index]
                     elem.subtitle = elem.main ? Lang.translate('account_profile_main') : elem.child ? Lang.translate('account_profile_child') + ' ' + '(' + Lang.translate('filter_rating_to') + ' ' + (elem.age || 12) + ')' : ''
 
