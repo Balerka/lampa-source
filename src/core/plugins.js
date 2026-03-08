@@ -37,16 +37,27 @@ function get(){
     return _loaded.map(a=>a)
 }
 
+function normalize(list){
+    let urls = []
+
+    return list.map((plugin)=>{
+        return typeof plugin == 'string' ? {url: plugin, status: 1} : plugin
+    }).filter((plugin)=>{
+        if(!plugin || !plugin.url) return false
+
+        plugin.url = (plugin.url + '').replace('cub.watch', Manifest.cub_domain).replace('bwa.to', 'bwa.ad')
+
+        if(urls.indexOf(plugin.url) >= 0) return false
+
+        urls.push(plugin.url)
+
+        return true
+    })
+}
+
 function modify(){
     let list = Storage.get('plugins','[]')
-
-    list = list.map(a=>{
-        return typeof a == 'string' ? {url: a, status: 1} : a
-    })
-
-    list.forEach(a=>{
-        a.url = (a.url + '').replace('cub.watch', Manifest.cub_domain).replace('bwa.to', 'bwa.ad')
-    })
+    list = normalize(list)
 
     console.log('Plugins','modify:', list)
     
@@ -144,6 +155,10 @@ function addPluginParams(url){
     encode = encode.replace('cub.watch', Manifest.cub_domain)
 
     encode = Utils.fixMirrorLink(encode)
+
+    // Built-in local plugins should keep a stable file URL.
+    // Query params like `reset=` break cold starts in some webviews/app shells.
+    if(/^(\.?\/|\/)/.test(encode)) return encode
         
     if(!/[0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}/.test(encode)){
         encode = encode.replace(/\{storage_(\w+|\d+|_|-)\}/g,(match,key)=>{
@@ -243,6 +258,8 @@ function task(call){
         Account.Api.plugins((plugins)=>{
             let puts = window.lampa_settings.plugins_use ? plugins.filter(plugin=>plugin.status).map(plugin=>plugin.url).concat(Storage.get('plugins','[]').filter(plugin=>plugin.status).map(plugin=>plugin.url)) : []
 
+            puts.push('./plugins/vod/vod.js')
+            puts.push('https://lampame.github.io/main/pubtorr.js')
             puts.push('./plugins/modification.js')
 
             puts = puts.filter((element, index) => {

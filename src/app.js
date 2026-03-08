@@ -114,7 +114,6 @@ import ServiceTorserver from './services/torrserver'
 import ServiceWatched from './services/watched'
 import ServiceSettings from './services/settings'
 import ServiceLibs from './services/libs'
-import ServiceMetric from './services/metric'
 import ServiceDeveloper from './services/developer'
 import ServiceRemoteFavorites from './services/remote_favorites'
 import ServiceDMCA from './services/dmca'
@@ -693,9 +692,6 @@ function startApp(){
 
     ServiceSettings.init()
     LoadingProgress.status('ServiceSettings init')
-
-    ServiceMetric.init()
-    LoadingProgress.status('ServiceMetric init')
 
     ServiceRemoteFavorites.init()
     LoadingProgress.status('ServiceRemoteFavorites init')

@@ -1,6 +1,5 @@
 import Utils from '../utils/utils.js'
 import Defined from '../defined.js'
-import Metric from '../utils/metric.js'
 
 
 function Recorder(video){
@@ -9,8 +8,6 @@ function Recorder(video){
     let start_point = video.currentTime
 
     this.start = function(){
-        Metric.counter('shots_recorder_start')
-        
         try{
             this.screenshot = Utils.videoScreenShot(video, Defined.screen_size)
 
@@ -83,8 +80,6 @@ function Recorder(video){
         this.destroy()
 
         this.onError(e)
-
-        Metric.counter('shots_recorder_error')
     }
 
     this.stop = function(){
@@ -102,8 +97,6 @@ function Recorder(video){
                 start_point: Math.round(start_point),
                 end_point: Math.round(video.currentTime)
             })
-
-            Metric.counter('shots_recorder_end')
         }
     }
 

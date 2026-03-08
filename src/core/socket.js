@@ -26,6 +26,23 @@ let timeout
 let used_mirrors = -1
 let terminal_access = false
 
+function socketUrlFromHost(host, protocol, defaultPort){
+    if(/^wss?:\/\//.test(host)) return host
+    if(/:\d+$/.test(host)) return protocol + host
+
+    return protocol + host + defaultPort
+}
+
+function socketHosts(){
+    let hosts = Manifest.soc_mirrors.slice()
+
+    // Prefer the configured account backend for realtime account sync.
+    if(window.lampa_settings.account_socket_use && Manifest.account_domain){
+        hosts.unshift(Manifest.account_domain)
+    }
+
+    return hosts.filter((host, index, list)=> host && list.indexOf(host) === index)
+}
 
 function connect(){
     if(!window.lampa_settings.socket_use) return
@@ -33,12 +50,12 @@ function connect(){
     let ws = Platform.is('orsay') || Platform.is('netcast') ? 'ws://' : 'wss://'
     let pt = Platform.is('orsay') || Platform.is('netcast') ? ':8080' : ':8443'
 
-    let mirrors = Manifest.soc_mirrors
+    let mirrors = socketHosts()
     let mirror  = mirrors[used_mirrors + 1] || mirrors[0]
 
     used_mirrors = (used_mirrors + 1) % mirrors.length
 
-    let socket_url = ws + mirror + pt
+    let socket_url = socketUrlFromHost(mirror, ws, pt)
 
     if(window.lampa_settings.socket_url) socket_url = window.lampa_settings.socket_url
     

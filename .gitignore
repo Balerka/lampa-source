@@ -20,6 +20,7 @@ src/utils/api/okko.js
 .AGENTS.md
 .run
 public/css/app.css
+public/config.js
 plugins/*/css/style.css
 public/lang/*.js
 build/doc/

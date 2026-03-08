@@ -4,48 +4,12 @@ import Modal from './modal'
 import Socket from '../core/socket'
 import Lang from '../core/lang'
 import Arrays from '../utils/arrays'
-import Head from './head/head'
-import Activity from './activity/activity'
-import Permit from '../core/account/permit'
 
 let timer
 let listener
 
 function init(){
-    let timer, activity
-
-    let broadcast = Head.addIcon(Template.string('icon_broadcast'), ()=>{
-        open({
-            type: 'card',
-            object: Activity.extractObject(activity)
-        })
-    })
-
-    broadcast.addClass('open--broadcast')
-    
-    broadcast.hide()
-    
-    Lampa.Listener.follow('activity',(e)=>{
-        if(e.type == 'start') activity = e.object
-
-        clearTimeout(timer)
-
-        timer = setTimeout(()=>{
-            if(activity){
-                if(activity.component !== 'full'){
-                    broadcast.hide()
-
-                    activity = false
-                }
-            }
-        },1000)
-
-        if(e.type == 'start' && e.component == 'full' && !Permit.child){
-            broadcast.show()
-
-            activity = e.object
-        }
-    })
+    return
 }
 
 /**

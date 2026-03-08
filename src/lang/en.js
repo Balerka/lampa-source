@@ -64,6 +64,8 @@ export default {
     settings_cub_status: 'Status',
     settings_cub_backup_import: 'Import',
     settings_cub_backup_export: 'Export',
+    settings_cub_backup_export_descr: 'Save settings to the cloud',
+    settings_cub_backup_import_descr: 'Restore settings from the cloud',
     settings_cub_sync_filters: 'Filters sync',
     settings_cub_sync_calendar: 'Calendar sync',
     settings_cub_sync_quality: 'Quality sync',
