@@ -6,12 +6,12 @@
 
 - Для production здесь не нужен `npm run start`.
 - `npm run start` поднимает локальный dev-режим через `gulp` и для продакшена не подходит.
-- Production-артефакты для статической публикации собираются в каталог `build/github/lampa/`.
+- Production-артефакты для статической публикации собираются в каталог `build/web/`.
 - Это в первую очередь статический фронтенд. Отдельный backend для `account_site`, `socket_url` и похожих интеграций в этот репозиторий не входит.
 
 ## Что в итоге нужно получить
 
-На сервере должен открываться сайт, который отдает содержимое каталога `build/github/lampa/` как обычный статический сайт через Nginx/FastPanel.
+На сервере должен открываться сайт, который отдает содержимое каталога `build/web/` как обычный статический сайт через Nginx/FastPanel.
 
 ## Вариант 1. Рекомендуемый: собрать локально и загрузить в FastPanel
 
@@ -23,24 +23,24 @@
 
 ```bash
 npm install
-npx gulp pack_github
+npx gulp pack_web
 ```
 
 После сборки нужные файлы будут лежать в:
 
 ```bash
-build/github/lampa/
+build/web/
 ```
 
 Проверьте, что там есть как минимум:
 
 ```text
-build/github/lampa/index.html
-build/github/lampa/app.min.js
-build/github/lampa/css/app.css
-build/github/lampa/img/
-build/github/lampa/lang/
-build/github/lampa/vender/
+build/web/index.html
+build/web/app.js
+build/web/css/app.css
+build/web/img/
+build/web/lang/
+build/web/vender/
 ```
 
 ### 2. Создайте сайт в FastPanel
@@ -55,7 +55,7 @@ build/github/lampa/vender/
 
 ### 3. Загрузите сборку
 
-В корень сайта в FastPanel загрузите содержимое каталога `build/github/lampa/`.
+В корень сайта в FastPanel загрузите содержимое каталога `build/web/`.
 
 Важно:
 
@@ -66,7 +66,7 @@ build/github/lampa/vender/
 
 ```text
 <document_root>/index.html
-<document_root>/app.min.js
+<document_root>/app.js
 <document_root>/css/app.css
 <document_root>/img/...
 <document_root>/lang/...
@@ -84,7 +84,7 @@ https://ваш-домен/
 Если открывается пустая страница или видна ошибка загрузки файла:
 
 1. Проверьте, что `index.html` лежит именно в document root.
-2. Проверьте, что рядом доступны `app.min.js`, `css/app.css`, `img`, `lang`, `vender`.
+2. Проверьте, что рядом доступны `app.js`, `css/app.css`, `img`, `lang`, `vender`.
 3. Проверьте, что домен работает по HTTPS без mixed content и без редирект-циклов.
 
 ## Вариант 2. Сборка прямо на Ubuntu 24
@@ -115,13 +115,13 @@ npm -v
 git clone <URL_ВАШЕГО_РЕПОЗИТОРИЯ> /opt/lampa-source
 cd /opt/lampa-source
 npm install
-npx gulp pack_github
+npx gulp pack_web
 ```
 
 После этого готовая публикация будет лежать в:
 
 ```bash
-/opt/lampa-source/build/github/lampa
+/opt/lampa-source/build/web
 ```
 
 ### 4. Скопируйте сборку в document root сайта
@@ -129,7 +129,7 @@ npx gulp pack_github
 Пример:
 
 ```bash
-rsync -av --delete /opt/lampa-source/build/github/lampa/ /var/www/USER/data/www/DOMAIN/
+rsync -av --delete /opt/lampa-source/build/web/ /var/www/USER/data/www/DOMAIN/
 ```
 
 Подставьте свой фактический путь сайта из FastPanel.
@@ -157,10 +157,10 @@ location / {
 
 ```bash
 npm install
-npx gulp pack_github
+npx gulp pack_web
 ```
 
-3. Залить заново содержимое `build/github/lampa/` в document root сайта.
+3. Залить заново содержимое `build/web/` в document root сайта.
 
 Если используете серверную сборку:
 
@@ -168,8 +168,8 @@ npx gulp pack_github
 cd /opt/lampa-source
 git pull
 npm install
-npx gulp pack_github
-rsync -av --delete build/github/lampa/ /var/www/USER/data/www/DOMAIN/
+npx gulp pack_web
+rsync -av --delete build/web/ /var/www/USER/data/www/DOMAIN/
 ```
 
 ## Если нужен свой `account_site` или WebSocket
@@ -195,7 +195,7 @@ rsync -av --delete build/github/lampa/ /var/www/USER/data/www/DOMAIN/
 
 1. Открывается `https://домен/`.
 2. Возвращается `200` на `index.html`.
-3. Возвращается `200` на `app.min.js`.
+3. Возвращается `200` на `app.js`.
 4. Возвращается `200` на `css/app.css`.
 5. В DevTools нет `404` на ассеты.
 
@@ -204,7 +204,7 @@ rsync -av --delete build/github/lampa/ /var/www/USER/data/www/DOMAIN/
 Для production используйте:
 
 ```bash
-npx gulp pack_github
+npx gulp pack_web
 ```
 
 Не используйте для production:

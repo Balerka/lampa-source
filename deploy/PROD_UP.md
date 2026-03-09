@@ -7,7 +7,7 @@
 `deploy/prod-up.sh`:
 
 - ставит зависимости фронта;
-- собирает фронт `lampa` через `npx gulp pack_github`;
+- собирает фронт `lampa` через `npx gulp pack_web`;
 - при необходимости публикует собранный фронт в нужную директорию;
 - ставит `composer` и `npm` зависимости в `cub`;
 - собирает Laravel assets;
@@ -70,11 +70,11 @@ BACK_DIR="/var/www/USER/data/www/example.com/lampa-source/cub"
 BACK_ENV_FILE="/var/www/USER/data/www/example.com/lampa-source/cub/.env"
 ```
 
-Если фронт-сайт в FastPanel уже направлен прямо на `build/github/lampa`, тогда `FRONT_PUBLISH_DIR` можно оставить пустым.
+Если фронт-сайт в FastPanel уже направлен прямо на `build/web`, тогда `FRONT_PUBLISH_DIR` можно оставить пустым.
 
 ## Важно
 
-- Не указывай `FRONT_PUBLISH_DIR` равным корню репозитория, иначе публикация фронта затрет исходники. Либо направляй сайт сразу на `build/github/lampa`, либо используй отдельную publish-папку.
+- Не указывай `FRONT_PUBLISH_DIR` равным корню репозитория, иначе публикация фронта затрет исходники. Либо направляй сайт сразу на `build/web`, либо используй отдельную publish-папку.
 - Скрипт не ставит системные пакеты Ubuntu. Предполагается, что `php`, `composer`, `npm`, `node`, `npx` уже установлены.
 - Если в `cub/.env` пустой `APP_KEY`, скрипт сам его сгенерирует.
 - Если в корне проекта есть `supervisor.conf`, websocket будет перезапущен через `supervisorctl`.

@@ -12,8 +12,8 @@ fi
 
 FRONT_DIR="${FRONT_DIR:-$ROOT_DIR}"
 FRONT_NODE_INSTALL_CMD="${FRONT_NODE_INSTALL_CMD:-npm ci}"
-FRONT_BUILD_CMD="${FRONT_BUILD_CMD:-npx gulp pack_github}"
-FRONT_BUILD_OUTPUT="${FRONT_BUILD_OUTPUT:-$FRONT_DIR/build/github/lampa}"
+FRONT_BUILD_CMD="${FRONT_BUILD_CMD:-npx gulp pack_web}"
+FRONT_BUILD_OUTPUT="${FRONT_BUILD_OUTPUT:-$FRONT_DIR/build/web}"
 FRONT_PUBLISH_DIR="${FRONT_PUBLISH_DIR:-}"
 
 BACK_DIR="${BACK_DIR:-$ROOT_DIR/cub}"
@@ -131,7 +131,7 @@ publish_front() {
     require_cmd rsync
 
     if [[ "$FRONT_PUBLISH_DIR" == "$ROOT_DIR" || "$FRONT_PUBLISH_DIR" == "$FRONT_DIR" ]]; then
-        die "FRONT_PUBLISH_DIR не должен совпадать с корнем репозитория. Направь сайт либо на build/github/lampa, либо на отдельную publish-папку."
+        die "FRONT_PUBLISH_DIR не должен совпадать с корнем репозитория. Направь сайт либо на build/web, либо на отдельную publish-папку."
     fi
 
     mkdir -p "$FRONT_PUBLISH_DIR"
