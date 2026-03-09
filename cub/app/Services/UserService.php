@@ -25,6 +25,8 @@ class UserService
 
     public function resolveByToken(?string $plainToken): ?User
     {
+        $plainToken = is_string($plainToken) ? trim($plainToken) : null;
+
         if (blank($plainToken)) {
             return null;
         }

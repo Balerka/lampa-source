@@ -5,6 +5,14 @@ import Noty from '../../interaction/noty'
 import Lang from '../lang'
 import Modal from './modal'
 
+const BACKUP_EXCLUDED_KEYS = [
+    'app.js',
+    'account',
+    'account_user',
+    'account_email',
+    'account_notice'
+]
+
 function inject(callback){
     if(!Permit.access) return console.warn('Backup', 'no access'), callback && callback()
 
@@ -15,8 +23,17 @@ function inject(callback){
             if(data.data){
                 let imp  = 0
                 let ers  = 0
+                let preserved = {}
+
+                ;['account','account_user'].forEach((key)=>{
+                    let value = localStorage.getItem(key)
+
+                    if(value !== null) preserved[key] = value
+                })
 
                 for(let i in data.data){
+                    if(i === 'account' || i === 'account_user') continue
+
                     try{
                         localStorage.setItem(i, data.data[i])
 
@@ -26,6 +43,10 @@ function inject(callback){
                         ers++
                     }
                 }
+
+                Object.keys(preserved).forEach((key)=>{
+                    localStorage.setItem(key, preserved[key])
+                })
 
                 Noty.show(Lang.translate('account_import_secuses') + ' - '+Lang.translate('account_imported')+' ('+imp+'/'+ers+') - ' + Lang.translate('account_reload_after'))
 
@@ -46,8 +67,8 @@ function publish(callback){
     confirm('', ()=>{
         let file
 
-        // Удаляем из бэкапа app.js
-        let serialized = JSON.stringify(localStorage, (key, value) => key === 'app.js' ? undefined : value)
+        // Не включаем в бэкап временные auth-данные и app.js
+        let serialized = JSON.stringify(localStorage, (key, value) => BACKUP_EXCLUDED_KEYS.includes(key) ? undefined : value)
 
         try{
             file = new File([serialized], "backup.json", {
