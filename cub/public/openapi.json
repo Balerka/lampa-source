@@ -1,0 +1,255 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Lampa Custom Account API",
+    "version": "1.0.0",
+    "description": "REST API for custom Lampa authorization and sync built on Laravel."
+  },
+  "servers": [
+    { "url": "http://localhost" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "TokenHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "token"
+      },
+      "ProfileHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "profile"
+      }
+    },
+    "schemas": {
+      "Profile": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "icon": { "type": "string" },
+          "main": { "type": "boolean" },
+          "child": { "type": "boolean" },
+          "age": { "type": "integer" }
+        }
+      },
+      "Success": {
+        "type": "object",
+        "properties": {
+          "secuses": { "type": "boolean", "example": true }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "ok": { "type": "boolean" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/device/code/create": {
+      "post": {
+        "summary": "Create device code for current user",
+        "security": [{ "TokenHeader": [] }],
+        "responses": {
+          "200": {
+            "description": "Device code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "secuses": { "type": "boolean" },
+                    "code": { "type": "string" },
+                    "expires": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/device/code/manual": {
+      "post": {
+        "summary": "Manually create a device code for tests",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "secret": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Device code generated" } }
+      }
+    },
+    "/api/device/add": {
+      "post": {
+        "summary": "Exchange device code for account token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["code"],
+                "properties": {
+                  "code": { "type": "string", "pattern": "^[0-9]{6}$" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Token or compatible Lampa error" } }
+      }
+    },
+    "/api/users/get": {
+      "get": {
+        "summary": "Current user",
+        "security": [{ "TokenHeader": [] }],
+        "responses": { "200": { "description": "User payload" } }
+      }
+    },
+    "/api/profiles/all": {
+      "get": {
+        "summary": "List profiles",
+        "security": [{ "TokenHeader": [] }],
+        "responses": { "200": { "description": "Profiles list" } }
+      }
+    },
+    "/api/profiles/create": {
+      "post": {
+        "summary": "Create profile",
+        "security": [{ "TokenHeader": [] }],
+        "responses": { "200": { "description": "Created profile" } }
+      }
+    },
+    "/api/bookmarks/dump": {
+      "get": {
+        "summary": "Bookmark dump as text/plain JSON",
+        "security": [{ "TokenHeader": [] }, { "ProfileHeader": [] }],
+        "responses": { "200": { "description": "Bookmark dump" } }
+      }
+    },
+    "/api/bookmarks/changelog": {
+      "get": {
+        "summary": "Bookmark changelog",
+        "security": [{ "TokenHeader": [] }, { "ProfileHeader": [] }],
+        "parameters": [{ "name": "since", "in": "query", "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Bookmark changelog" } }
+      }
+    },
+    "/api/bookmarks/add": {
+      "post": {
+        "summary": "Add or update bookmark",
+        "security": [{ "TokenHeader": [] }, { "ProfileHeader": [] }],
+        "responses": { "200": { "description": "Success" } }
+      }
+    },
+    "/api/bookmarks/remove": {
+      "post": {
+        "summary": "Remove bookmark",
+        "security": [{ "TokenHeader": [] }, { "ProfileHeader": [] }],
+        "responses": { "200": { "description": "Success" } }
+      }
+    },
+    "/api/bookmarks/clear": {
+      "post": {
+        "summary": "Clear bookmark group",
+        "security": [{ "TokenHeader": [] }, { "ProfileHeader": [] }],
+        "responses": { "200": { "description": "Success" } }
+      }
+    },
+    "/api/bookmarks/sync": {
+      "post": {
+        "summary": "Import bookmark file",
+        "security": [{ "TokenHeader": [] }, { "ProfileHeader": [] }],
+        "responses": { "200": { "description": "Success" } }
+      }
+    },
+    "/api/timeline/dump": {
+      "get": {
+        "summary": "Timeline dump as text/plain JSON",
+        "security": [{ "TokenHeader": [] }, { "ProfileHeader": [] }],
+        "responses": { "200": { "description": "Timeline dump" } }
+      }
+    },
+    "/api/timeline/changelog": {
+      "get": {
+        "summary": "Timeline changelog",
+        "security": [{ "TokenHeader": [] }, { "ProfileHeader": [] }],
+        "parameters": [{ "name": "since", "in": "query", "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Timeline changelog" } }
+      }
+    },
+    "/api/timeline/update": {
+      "post": {
+        "summary": "Update timeline progress",
+        "security": [{ "TokenHeader": [] }, { "ProfileHeader": [] }],
+        "responses": { "200": { "description": "Success" } }
+      }
+    },
+    "/api/notifications/all": {
+      "get": {
+        "summary": "Notifications",
+        "security": [{ "TokenHeader": [] }, { "ProfileHeader": [] }],
+        "responses": { "200": { "description": "Notifications list" } }
+      }
+    },
+    "/api/notifications/add": {
+      "post": {
+        "summary": "Add notification",
+        "security": [{ "TokenHeader": [] }, { "ProfileHeader": [] }],
+        "responses": { "200": { "description": "Success" } }
+      }
+    },
+    "/api/notice/all": {
+      "get": {
+        "summary": "System notices",
+        "security": [{ "TokenHeader": [] }],
+        "responses": { "200": { "description": "Empty notices list" } }
+      }
+    },
+    "/api/person/list": {
+      "get": {
+        "summary": "Person list",
+        "security": [{ "TokenHeader": [] }],
+        "responses": { "200": { "description": "Empty results" } }
+      }
+    },
+    "/api/users/backup/import": {
+      "get": {
+        "summary": "Get latest user backup",
+        "security": [{ "TokenHeader": [] }],
+        "responses": { "200": { "description": "Backup payload" } }
+      }
+    },
+    "/api/users/backup/export": {
+      "post": {
+        "summary": "Store user backup",
+        "security": [{ "TokenHeader": [] }],
+        "responses": { "200": { "description": "Success" } }
+      }
+    }
+  }
+}
