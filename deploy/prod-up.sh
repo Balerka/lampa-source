@@ -239,9 +239,6 @@ main() {
 
     if truthy "$BACK_RUN_CACHE"; then
         run_in_dir "$BACK_DIR" "$BACK_PHP_BIN artisan optimize:clear"
-        run_in_dir "$BACK_DIR" "$BACK_PHP_BIN artisan config:cache"
-        run_in_dir "$BACK_DIR" "$BACK_PHP_BIN artisan route:cache"
-        run_in_dir "$BACK_DIR" "$BACK_PHP_BIN artisan view:cache"
     fi
 
     log "6/6 Права и websocket"
