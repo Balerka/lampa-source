@@ -30,7 +30,6 @@ class UserService
         }
 
         $token = UserToken::query()
-            ->with('user.profiles')
             ->where('token_hash', hash('sha256', $plainToken))
             ->when(now(), fn ($query, $now) => $query->where(fn ($inner) => $inner
                 ->whereNull('expires_at')
@@ -43,7 +42,9 @@ class UserService
 
         $token->forceFill(['last_used_at' => now()])->save();
 
-        return $token->user;
+        return User::query()
+            ->with('profiles')
+            ->find($token->user_id);
     }
 
     public function payload(User $user): array

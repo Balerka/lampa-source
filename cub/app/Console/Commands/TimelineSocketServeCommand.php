@@ -234,6 +234,12 @@ class TimelineSocketServeCommand extends Command
             return;
         }
 
+        if ($payload === 'ping') {
+            $this->sendFrame($this->clients[$clientId]['socket'], 'pong', 0x1);
+
+            return;
+        }
+
         $message = json_decode($payload, true);
         if (! is_array($message)) {
             $this->sendError($clientId, 'invalid_json', 'Expected a JSON object.');
