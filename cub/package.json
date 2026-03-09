@@ -3,6 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "build": "vite build",
         "db:seed": "php artisan db:seed --force",
         "dev": "vite",
         "format": "prettier --write resources/",
