@@ -41,6 +41,7 @@ SUPERVISOR_CONF_FILE="${SUPERVISOR_CONF_FILE:-$ROOT_DIR/supervisor.conf}"
 SUPERVISORCTL_BIN="${SUPERVISORCTL_BIN:-supervisorctl}"
 SUPERVISOR_PROGRAM_NAME="${SUPERVISOR_PROGRAM_NAME:-timeline-socket}"
 SUDO_BIN="${SUDO_BIN:-sudo}"
+UPDATE_TARGET="${UPDATE_TARGET:-all}"
 
 log() {
     printf '\n[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"
@@ -49,6 +50,17 @@ log() {
 die() {
     printf '\n[ERROR] %s\n' "$*" >&2
     exit 1
+}
+
+usage() {
+    cat <<'EOF'
+Использование: prod-up.sh [all|front|back] [--front|--backend|--all]
+
+Опции:
+  all, --all       обновить фронт и backend
+  front, --front   обновить только фронт
+  back, --backend  обновить только backend
+EOF
 }
 
 require_cmd() {
@@ -71,6 +83,40 @@ truthy() {
         1|true|yes|y|on) return 0 ;;
         *) return 1 ;;
     esac
+}
+
+parse_args() {
+    local arg
+
+    for arg in "$@"; do
+        case "$arg" in
+            all|--all)
+                UPDATE_TARGET="all"
+                ;;
+            front|--front)
+                UPDATE_TARGET="front"
+                ;;
+            back|backend|--back|--backend)
+                UPDATE_TARGET="back"
+                ;;
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            *)
+                usage >&2
+                die "Неизвестный аргумент: $arg"
+                ;;
+        esac
+    done
+}
+
+should_update_front() {
+    [[ "$UPDATE_TARGET" == "all" || "$UPDATE_TARGET" == "front" ]]
+}
+
+should_update_back() {
+    [[ "$UPDATE_TARGET" == "all" || "$UPDATE_TARGET" == "back" ]]
 }
 
 read_env_value() {
@@ -202,58 +248,66 @@ restart_socket_via_supervisor() {
 }
 
 main() {
+    parse_args "$@"
+
     require_cmd bash
-    require_cmd npm
-    require_cmd npx
-    require_cmd "$BACK_PHP_BIN"
-    require_cmd "$BACK_COMPOSER_BIN"
 
-    [[ -d "$FRONT_DIR" ]] || die "Не найдена папка фронта: $FRONT_DIR"
-    [[ -d "$BACK_DIR" ]] || die "Не найдена папка backend: $BACK_DIR"
+    if should_update_front; then
+        require_cmd npm
+        require_cmd npx
+        [[ -d "$FRONT_DIR" ]] || die "Не найдена папка фронта: $FRONT_DIR"
 
-    log "1/6 Устанавливаю зависимости фронта"
-    run_in_dir "$FRONT_DIR" "$FRONT_NODE_INSTALL_CMD"
-
-    log "2/6 Собираю фронт Lampa"
-    run_in_dir "$FRONT_DIR" "$FRONT_BUILD_CMD"
-    [[ -f "$FRONT_BUILD_OUTPUT/index.html" ]] || die "Не найдена фронтовая сборка: $FRONT_BUILD_OUTPUT/index.html"
-    publish_front
-
-    log "3/6 Устанавливаю зависимости Laravel backend"
-    run_in_dir "$BACK_DIR" "$BACK_COMPOSER_INSTALL_CMD"
-    run_in_dir "$BACK_DIR" "$BACK_NODE_INSTALL_CMD"
-
-    log "4/6 Готовлю Laravel env и собираю assets"
-    ensure_backend_env
-    ensure_sqlite_file
-    run_in_dir "$BACK_DIR" "$BACK_BUILD_CMD"
-
-    log "5/6 Применяю миграции и кэши Laravel"
-    if truthy "$BACK_RUN_MIGRATIONS"; then
-        run_in_dir "$BACK_DIR" "$BACK_PHP_BIN artisan migrate --force"
+        log "Обновляю фронт"
+        run_in_dir "$FRONT_DIR" "$FRONT_NODE_INSTALL_CMD"
+        run_in_dir "$FRONT_DIR" "$FRONT_BUILD_CMD"
+        [[ -f "$FRONT_BUILD_OUTPUT/index.html" ]] || die "Не найдена фронтовая сборка: $FRONT_BUILD_OUTPUT/index.html"
+        publish_front
     fi
 
-    if truthy "$BACK_RUN_STORAGE_LINK"; then
-        run_in_dir "$BACK_DIR" "$BACK_PHP_BIN artisan storage:link || true"
-    fi
+    if should_update_back; then
+        require_cmd npm
+        require_cmd "$BACK_PHP_BIN"
+        require_cmd "$BACK_COMPOSER_BIN"
+        [[ -d "$BACK_DIR" ]] || die "Не найдена папка backend: $BACK_DIR"
 
-    if truthy "$BACK_RUN_CACHE"; then
-        run_in_dir "$BACK_DIR" "$BACK_PHP_BIN artisan optimize:clear"
-    fi
+        log "Обновляю backend"
+        run_in_dir "$BACK_DIR" "$BACK_COMPOSER_INSTALL_CMD"
+        run_in_dir "$BACK_DIR" "$BACK_NODE_INSTALL_CMD"
 
-    log "6/6 Права и websocket"
-    set_permissions
-    if ! restart_socket_via_supervisor; then
-        install_socket_service
+        ensure_backend_env
+        ensure_sqlite_file
+        run_in_dir "$BACK_DIR" "$BACK_BUILD_CMD"
+
+        if truthy "$BACK_RUN_MIGRATIONS"; then
+            run_in_dir "$BACK_DIR" "$BACK_PHP_BIN artisan migrate --force"
+        fi
+
+        if truthy "$BACK_RUN_STORAGE_LINK"; then
+            run_in_dir "$BACK_DIR" "$BACK_PHP_BIN artisan storage:link || true"
+        fi
+
+        if truthy "$BACK_RUN_CACHE"; then
+            run_in_dir "$BACK_DIR" "$BACK_PHP_BIN artisan optimize:clear"
+        fi
+
+        set_permissions
+        if ! restart_socket_via_supervisor; then
+            install_socket_service
+        fi
     fi
 
     log "Готово"
-    log "Фронт: $FRONT_BUILD_OUTPUT"
-    if [[ -n "$FRONT_PUBLISH_DIR" ]]; then
-        log "Фронт опубликован в: $FRONT_PUBLISH_DIR"
+    log "Режим обновления: $UPDATE_TARGET"
+    if should_update_front; then
+        log "Фронт: $FRONT_BUILD_OUTPUT"
+        if [[ -n "$FRONT_PUBLISH_DIR" ]]; then
+            log "Фронт опубликован в: $FRONT_PUBLISH_DIR"
+        fi
     fi
-    log "Backend: $BACK_DIR"
-    log "Laravel public: $BACK_DIR/public"
+    if should_update_back; then
+        log "Backend: $BACK_DIR"
+        log "Laravel public: $BACK_DIR/public"
+    fi
 }
 
 main "$@"
