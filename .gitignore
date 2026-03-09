@@ -25,3 +25,4 @@ plugins/*/css/style.css
 public/lang/*.js
 build/doc/
 supervisor.conf
+index/github/assembly.json
