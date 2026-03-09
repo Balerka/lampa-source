@@ -16,10 +16,16 @@ function readStringSetting(name, fallback){
     return typeof value == 'string' && value.trim() ? value.trim() : fallback
 }
 
+function readArraySetting(name, fallback){
+    let value = settings()[name]
+
+    return Object.prototype.toString.call(value) === '[object Array]' && value.length ? value : fallback
+}
+
 Object.defineProperty(object, 'app_digital', { get: ()=> parseInt(object.app_version.replace(/\./g,'')) })
 Object.defineProperty(object, 'css_digital', { get: ()=> parseInt(object.css_version.replace(/\./g,'')) })
 
-Object.defineProperty(object, 'plugins', { 
+Object.defineProperty(object, 'plugins', {
     get: ()=> plugins,
     set: (plugin)=> {
         if(typeof plugin == 'object' && typeof plugin.type == 'string'){
@@ -41,7 +47,7 @@ Object.defineProperty(object, 'account_premium_name', {
 /**
  * Ссылка на GitHub с файлами приложения
  */
-Object.defineProperty(object, 'github_lampa', { 
+Object.defineProperty(object, 'github_lampa', {
     get: ()=> window.lampa_settings.fix_widget ? 'http://lampa.mx/' : 'https://yumata.github.io/lampa/',
     set: ()=> {}
 })
@@ -49,7 +55,7 @@ Object.defineProperty(object, 'github_lampa', {
 /**
  * Старые зеркала, которые не используются больше, но могут быть полезны для обратной совместимости
  */
-Object.defineProperty(object, 'old_mirrors', { 
+Object.defineProperty(object, 'old_mirrors', {
     get: ()=> ['cub.red', 'standby.cub.red', 'kurwa-bober.ninja', 'nackhui.com'],
     set: ()=> {}
 })
@@ -57,15 +63,20 @@ Object.defineProperty(object, 'old_mirrors', {
 /**
  * Список актуальных зеркал
  */
-Object.defineProperty(object, 'cub_mirrors', { 
+Object.defineProperty(object, 'cub_mirrors', {
     get: ()=> {
         let lampa = ['cub.rip', 'durex.monster', 'cubnotrip.top']
+        let forced = readArraySetting('cub_mirrors', [])
         let users = localStorage.getItem('cub_mirrors') || '[]'
 
         try {
             users = JSON.parse(users)
         } catch (e) {
             users = []
+        }
+
+        if(forced.length){
+            return forced
         }
 
         if(Object.prototype.toString.call( users ) === '[object Array]' && users.length){
@@ -80,7 +91,7 @@ Object.defineProperty(object, 'cub_mirrors', {
 /**
  * Список зеркал для сокета, вынесены отдельно, так как могут отличаться от обычных зеркал
  */
-Object.defineProperty(object, 'soc_mirrors', { 
+Object.defineProperty(object, 'soc_mirrors', {
     get: ()=> ['cub.red', 'kurwa-bober.ninja', 'nackhui.com'],
     set: ()=> {}
 })
@@ -88,9 +99,14 @@ Object.defineProperty(object, 'soc_mirrors', {
 /**
  * Текущее доменное имя, которое используется для работы с CUB
  */
-Object.defineProperty(object, 'cub_domain', { 
+Object.defineProperty(object, 'cub_domain', {
     get: ()=> {
+        let forced = readStringSetting('cub_domain', '')
         let use = localStorage.getItem('cub_domain') || ''
+
+        if(forced && object.cub_mirrors.indexOf(forced) > -1){
+            return forced
+        }
 
         return object.cub_mirrors.indexOf(use) > -1 ? use : object.cub_mirrors[0]
     } 

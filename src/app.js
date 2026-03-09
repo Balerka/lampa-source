@@ -171,6 +171,12 @@ Arrays.extend(window.lampa_settings,{
     // Домен для ассетов аккаунта: QR-заглушки, иконки профилей и т.д.
     account_assets_domain: undefined,
 
+    // Принудительный CUB-домен для плагинов, TMDB-прокси, картинок и прочих CUB-эндпоинтов
+    cub_domain: undefined,
+
+    // Полный список CUB-зеркал. Если задан, заменяет встроенный список зеркал
+    cub_mirrors: undefined,
+
     // Использовать сокет для проверки токена и realtime-синхронизации аккаунта
     account_socket_use: false,
 
