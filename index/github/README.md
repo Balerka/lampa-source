@@ -20,6 +20,19 @@
 2. Откройте файл `msx/start.json` и замените содержиое `{domain}` на свой домен или IP
 3. Откройте MSX и выполните установку
 
+## Сборка github-версии с автоподстановкой домена для MSX
+
+При сборке `pack_github` можно сразу подставить домен в `build/github/lampa/msx/start.json`.
+
+Примеры:
+
+```bash
+MSX_DOMAIN=example.com npx gulp pack_github
+MSX_DOMAIN=192.168.1.10:8080 MSX_PREFIX=http:// npx gulp pack_github
+```
+
+Поддерживаются также переменные `DOMAIN` и `PREFIX`.
+
 ## Запуск в Docker'е
 
 1. Соберите образ `docker build --build-arg domain={domain} -t lampa . `

@@ -53,6 +53,17 @@ var isDebugEnabled = false;
 
 var sassLoadPaths = [path.resolve(__dirname, srcFolder + 'sass')];
 
+function getGithubMsxBuildConfig() {
+    let domain = (process.env.MSX_DOMAIN || process.env.DOMAIN || '').trim();
+    let prefix = (process.env.MSX_PREFIX || process.env.PREFIX || 'http://').trim();
+
+    if (!domain) return null;
+    if (!/^[a-z]+:\/\//i.test(prefix)) prefix += '://';
+    if (!prefix.endsWith('://') && !prefix.endsWith('/')) prefix += '/';
+
+    return { domain, prefix };
+}
+
 function compileSass(options = {}) {
     return through.obj(function(file, enc, callback) {
         if (file.isNull()) return callback(null, file);
@@ -272,7 +283,18 @@ function index_tizen(){
     return src(idxFolder + '/tizen/**/*').pipe(dest(bulFolder+'tizen/'));
 }
 function index_github(){
-    return src(idxFolder + '/github/**/*').pipe(dest(bulFolder+'github/lampa/'));
+    let buildConfig = getGithubMsxBuildConfig();
+    let stream = src(idxFolder + '/github/**/*');
+
+    if (buildConfig) {
+        console.log('github msx config', buildConfig);
+
+        stream = stream
+            .pipe(replace(/\{domain\}/g, buildConfig.domain))
+            .pipe(replace(/\{PREFIX\}/g, buildConfig.prefix));
+    }
+
+    return stream.pipe(dest(bulFolder+'github/lampa/'));
 }
 
 /** Сверяем файлы **/
