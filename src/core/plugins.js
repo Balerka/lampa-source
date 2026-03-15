@@ -20,6 +20,21 @@ let _blacklist = []
 let _awaits = []
 let _noload = []
 
+function sourcePluginUrl(url){
+    let normalized = (url || '') + ''
+
+    normalized = normalized.replace('cub.watch', Manifest.cub_site).replace('bwa.to', 'bwa.ad')
+
+    Manifest.old_mirrors.forEach((mirror)=>{
+        normalized = normalized.replace('://' + mirror, '://' + Manifest.cub_site)
+    })
+
+    if(/^\/plugin\//.test(normalized)) return Utils.protocol() + Manifest.cub_site + normalized
+    if(/^plugin\//.test(normalized)) return Utils.protocol() + Manifest.cub_site + '/' + normalized
+
+    return normalized
+}
+
 /**
  * Запуск
  */
@@ -45,7 +60,7 @@ function normalize(list){
     }).filter((plugin)=>{
         if(!plugin || !plugin.url) return false
 
-        plugin.url = (plugin.url + '').replace('cub.watch', Manifest.cub_domain).replace('bwa.to', 'bwa.ad')
+        plugin.url = sourcePluginUrl(plugin.url)
 
         if(urls.indexOf(plugin.url) >= 0) return false
 
@@ -152,9 +167,7 @@ function createPluginDB(name){
 function addPluginParams(url){
     let encode = url
 
-    encode = encode.replace('cub.watch', Manifest.cub_domain)
-
-    encode = Utils.fixMirrorLink(encode)
+    encode = sourcePluginUrl(encode)
 
     // Built-in local plugins should keep a stable file URL.
     // Query params like `reset=` break cold starts in some webviews/app shells.

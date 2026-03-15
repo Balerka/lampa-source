@@ -351,7 +351,11 @@ function putScript(items, complite, error, success, show_logs){
             return next()
         }
 
-        u = u.replace('cub.watch', Lampa.Manifest.cub_domain)
+        u = u.replace('cub.watch', Lampa.Manifest.cub_site)
+
+        Lampa.Manifest.old_mirrors.forEach((mirror)=>{
+            u = u.replace('://' + mirror, '://' + Lampa.Manifest.cub_site)
+        })
 
         if(l) console.log('Script','create:',u)
 
@@ -394,7 +398,11 @@ function putScriptAsync(items, complite, error, success, show_logs){
     }
 
     function put(u){
-        u = u.replace('cub.watch', Lampa.Manifest.cub_domain)
+        u = u.replace('cub.watch', Lampa.Manifest.cub_site)
+
+        Lampa.Manifest.old_mirrors.forEach((mirror)=>{
+            u = u.replace('://' + mirror, '://' + Lampa.Manifest.cub_site)
+        })
         
         if(l) console.log('Script','create:',u)
 
