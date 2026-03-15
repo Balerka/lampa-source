@@ -92,8 +92,7 @@ class Extension extends Item {
                 if(a.toggle){
                     this.data.status = this.data.status == 1 ? 0 : 1
 
-                    if(this.params.cub) Account.Api.pluginToggle(this.data, this.data.status)
-                    else Plugins.save(this.data)
+                    Plugins.save(this.data)
 
                     this.update()
 

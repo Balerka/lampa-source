@@ -52,6 +52,7 @@
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fcd34d\" \"php artisan serve\" \"npm run dev\" \"php artisan queue:listen --tries=1 --timeout=0\"  --names=server,vite,queue,logs --kill-others"
         ],
         "socket:serve": [
+            "Composer\\Config::disableProcessTimeout",
             "@php artisan timeline:socket-serve"
         ],
         "lint": [

@@ -19,14 +19,8 @@ function init(){
     //     include.push(Utils.protocol() + 'youtube.com/iframe_api')
     // }
 
-    // Плагины различные
-    if(!window.lampa_settings.iptv && window.lampa_settings.services){
-        include.push(Utils.protocol() + Manifest.cub_domain + '/plugin/sport')
-        include.push(Utils.protocol() + Manifest.cub_domain + '/plugin/tsarea')
-    }
-
     // Плагин Shots
-    if(window.location.hostname !== 'localhost' && !window.lampa_settings.iptv) include.push(Utils.protocol() + Manifest.cub_domain + '/plugin/shots')
+    if(window.location.hostname !== 'localhost' && !window.lampa_settings.iptv) include.push(Utils.protocol() + Manifest.cub_site + '/plugin/shots')
 
     Utils.putScriptAsync(include,()=>{})
 }

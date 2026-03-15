@@ -20,6 +20,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'locale' => app()->getLocale(),
+            'csrfToken' => csrf_token(),
             'auth' => [
                 'user' => $request->user(),
             ],

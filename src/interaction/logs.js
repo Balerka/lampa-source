@@ -158,7 +158,7 @@ function push(){
 
             
             $.ajax({
-                url: Utils.protocol() + Manifest.cub_domain + '/api/lampa/logs/write',
+                url: Utils.protocol() + Manifest.cub_site + '/api/lampa/logs/write',
                 type: 'POST',
                 data: formData,
                 async: true,

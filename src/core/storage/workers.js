@@ -10,7 +10,7 @@ import Manifest from '../manifest'
 let network = new Reguest()
 
 function api(){
-    return Utils.protocol() + Manifest.cub_domain + '/api/'
+    return Utils.protocol() + Manifest.account_domain + '/api/'
 }
 
 class WorkerArray{
@@ -51,7 +51,8 @@ class WorkerArray{
         Socket.listener.follow('message',(e)=>{
             if(e.method == 'storage' && e.data.name == this.field){
                 try{
-                    if(e.data.remove) this.removeFromSocket(e.data)
+                    if(e.data.clean) this.cleanFromSocket()
+                    else if(e.data.remove) this.removeFromSocket(e.data)
                     else this.updateFromSocket(e.data)
                 }
                 catch(e){
@@ -157,6 +158,12 @@ class WorkerArray{
         let from = [data.value]
 
         this.parse(from, true)
+    }
+
+    cleanFromSocket(){
+        Storage.set(this.field, Arrays.clone(this.empty), true)
+
+        this.data = Arrays.clone(this.empty)
     }
 
     send(id,value){
@@ -307,11 +314,11 @@ class WorkerObject extends WorkerArray {
     }
 
     removeFromSocket(data){
-        delete this.data[id]
+        delete this.data[data.id]
 
         let store = Storage.cache(this.field, this.limit, Arrays.clone(this.empty))
 
-        delete store[id]
+        delete store[data.id]
 
         Storage.set(this.field, store, true)
     }

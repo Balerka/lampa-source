@@ -20,13 +20,17 @@ function Author(author_data = false){
 
         let email = data.email
         let icon  = data.icon
+        let user  = data.user_id || ''
 
         if(!email){
             email = Lampa.Account.Permit.account.email
             icon  = Lampa.Account.Permit.account.profile ? Lampa.Account.Permit.account.profile.icon : ''
+            user  = Lampa.Account.Permit.account.profile ? (Lampa.Account.Permit.account.profile.user_id || Lampa.Account.Permit.user.id || '') : ''
         }
 
-        this.img.src =  Lampa.Utils.protocol() + Lampa.Manifest.cub_domain + '/img/profiles/' + (icon || 'l_1') + '.png'
+        let path = user ? user + '/' + (icon || 'l_1') : (icon || 'l_1')
+
+        this.img.src =  Lampa.Utils.protocol() + Lampa.Manifest.cub_site + '/storage/profiles/' + path + '.webp'
 
         this.html.find('.shots-author__name').text(Lampa.Utils.capitalizeFirstLetter((email || 'Unknown').split('@')[0]))
     }

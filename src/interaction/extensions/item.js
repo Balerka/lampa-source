@@ -2,6 +2,7 @@ import Template from '../template'
 import Lang from '../../core/lang'
 import Plugins from '../../core/plugins'
 import Manifest from '../../core/manifest'
+import Utils from '../../utils/utils'
 
 class Item{
     constructor(data, params){
@@ -69,6 +70,21 @@ class Item{
 
     visible(){
         this.update()
+    }
+
+    image(url){
+        let image = (url || '') + ''
+
+        if(image && !/^https?:\/\//.test(image)) image = Utils.protocol() + Manifest.cub_site + (image.charAt(0) == '/' ? image : '/' + image)
+
+        image = Utils.rewriteIfHTTPS(image)
+        image = image.replace('cub.watch', Manifest.cub_site)
+
+        Manifest.old_mirrors.forEach((mirror)=>{
+            image = image.replace('://' + mirror, '://' + Manifest.cub_site)
+        })
+
+        return image
     }
 
     render(){

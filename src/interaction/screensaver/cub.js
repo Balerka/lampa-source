@@ -8,7 +8,7 @@ import Manifest from '../../core/manifest'
 class Cub{
     constructor(params){
         this.params  = params
-        this.default = Utils.protocol()+Manifest.cub_domain+'/img/background/default.mp4'
+        this.default = Utils.protocol()+Manifest.cub_site+'/img/background/default.mp4'
     }
 
     create(){

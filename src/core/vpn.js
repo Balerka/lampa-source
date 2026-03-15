@@ -36,7 +36,7 @@ function region(call){
         }
 
         extract(extracted, (e,x)=>{
-            console.warn('VPN', 'geo.' + Manifest.cub_domain + ' domain not responding', network.errorDecode(e,x))
+            console.warn('VPN', 'geo.' + Manifest.cub_site + ' domain not responding', network.errorDecode(e,x))
 
             Storage.set('region',{
                 code: Storage.field('language'),
@@ -51,7 +51,7 @@ function region(call){
 
 let extract = (call, error)=>{
     $.ajax({
-        url: Utils.protocol() + 'geo.' + Manifest.cub_domain,
+        url: Utils.protocol() + 'geo.' + Manifest.cub_site,
         type: 'GET',
         dataType: 'text',
         timeout: 8000,
@@ -64,7 +64,7 @@ function task(call){
     if(!window.lampa_settings.geo) return call && call()
 
     extract((country)=>{
-        console.log('VPN', 'geo.' + Manifest.cub_domain + ' domain responding ', country)
+        console.log('VPN', 'geo.' + Manifest.cub_site + ' domain responding ', country)
 
         country = country.trim().toLowerCase()
         
@@ -84,7 +84,7 @@ function task(call){
 
         call()
     }, (e,x)=>{
-        console.warn('VPN', 'geo.' + Manifest.cub_domain + ' domain not responding:', network.errorDecode(e,x))
+        console.warn('VPN', 'geo.' + Manifest.cub_site + ' domain not responding:', network.errorDecode(e,x))
 
         if(!window.lampa_settings.disable_features.install_proxy){
             console.log('VPN', 'launch TMDB Proxy')

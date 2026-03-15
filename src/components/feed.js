@@ -25,7 +25,7 @@ function Feed(object){
     this.create = function(){
         this.activity.loader(true)
 
-        network.silent(Utils.protocol() + Manifest.cub_domain + '/api/feed/all',this.build.bind(this),()=>{
+        network.silent(Utils.protocol() + Manifest.cub_site + '/api/feed/all',this.build.bind(this),()=>{
             let empty = new Empty()
 
             html.append(empty.render(true))

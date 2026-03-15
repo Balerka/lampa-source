@@ -3,6 +3,8 @@
 use App\Models\Bookmark;
 use App\Http\Controllers\Api\DeviceController;
 use App\Http\Controllers\Api\MiscController;
+use App\Http\Controllers\Settings\ProfileImageController;
+use App\Services\ProfileService;
 use App\Models\Timeline;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -19,6 +21,8 @@ Route::redirect('/swagger', '/openapi.json');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/add/code', [DeviceController::class, 'sessionCreate'])->name('lampa.add.code');
+    Route::post('/dashboard/profiles/{profile}/image', [ProfileImageController::class, 'store'])
+        ->name('dashboard.profile-image.store');
 
     Route::inertia('/add', 'add', [
         'actionUrl' => fn () => url('/add/code'),
@@ -40,8 +44,10 @@ Route::middleware(['auth'])->group(function () {
             ->get()
             ->map(fn ($profile) => [
                 'id' => $profile->id,
+                'userId' => $profile->user_id,
                 'name' => $profile->name,
                 'icon' => $profile->icon,
+                'image' => app(ProfileService::class)->imagePath($profile),
                 'main' => $profile->main,
                 'child' => $profile->child,
                 'age' => $profile->age,

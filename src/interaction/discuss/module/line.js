@@ -33,8 +33,9 @@ export default {
 
             this.html.on('visible', () => {
                 let img = who.find('img')
+                let path = this.data.user_id ? this.data.user_id + '/' + this.data.icon : this.data.icon
 
-                Utils.imgLoad(img, Utils.protocol() + Manifest.cub_domain + '/img/profiles/' + this.data.icon + '.png', () => {
+                Utils.imgLoad(img, Utils.protocol() + Manifest.cub_site + '/storage/profiles/' + path + '.webp', () => {
                     who.addClass('loaded')
                 }, () => {
                     img.src = './img/actor.svg'

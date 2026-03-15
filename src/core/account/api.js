@@ -8,8 +8,53 @@ import Modal from './modal'
 
 let network = new Reguest()
 
+let backendRoutes = [
+    /^device\/add$/,
+    /^device\/code\/manual$/,
+    /^device\/code\/create$/,
+    /^users\/get$/,
+    /^profiles\/all$/,
+    /^profiles\/create$/,
+    /^notice\/all$/,
+    /^person\/list$/,
+    /^users\/backup\/import$/,
+    /^users\/backup\/export$/,
+    /^bookmarks\/dump$/,
+    /^bookmarks\/changelog$/,
+    /^bookmarks\/add$/,
+    /^bookmarks\/remove$/,
+    /^bookmarks\/clear$/,
+    /^bookmarks\/sync$/,
+    /^timeline\/dump$/,
+    /^timeline\/changelog$/,
+    /^timeline\/update$/,
+    /^storage\/data\/[^/]+\/[^/]+$/,
+    /^notifications\/all$/,
+    /^notifications\/add$/
+]
+
 function url(){
     return Utils.protocol() + Manifest.account_domain + '/api/'
+}
+
+function sourceUrl(){
+    return Utils.protocol() + Manifest.cub_site + '/api/'
+}
+
+function normalizePath(path = ''){
+    return (path + '').replace(/^\/+/, '').split('?')[0]
+}
+
+function useBackend(path){
+    let normalized = normalizePath(path)
+
+    return backendRoutes.some((route)=> route.test(normalized))
+}
+
+function resolveUrl(path, params = {}){
+    if(params.url) return params.url
+
+    return (useBackend(path) ? url() : sourceUrl()) + path
 }
 
 function load(path, params = {}, post = false){
@@ -25,7 +70,7 @@ function load(path, params = {}, post = false){
                 timeout: 8000
             })
 
-            let u = params.url ? params.url : url() + path
+            let u = resolveUrl(path, params)
 
             network.silent(u, resolve, reject, post, params)
         }
@@ -58,30 +103,11 @@ function user(secuses, error){
 }
 
 function plugins(call){
-    if(Permit.access){
-        load('plugins/all', {timeout: 3000}).then((result)=>{
-            if(result.secuses){
-                Storage.set('account_plugins', result.plugins)
-
-                call(result.plugins)
-            }
-            else{
-                call(Storage.get('account_plugins','[]'))
-            }
-        }).catch(()=>{
-            call(Storage.get('account_plugins','[]'))
-        })
-    }
-    else call([])
+    call([])
 }
 
 function pluginToggle(plugin, status){
-    if(Permit.access){
-        load((plugin.author ? 'extensions' : 'plugins') + '/status', {}, {
-            id: plugin.id,
-            status
-        }).catch(()=>{})
-    }
+    return
 }
 
 function notices(call){

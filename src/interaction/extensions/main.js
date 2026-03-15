@@ -188,10 +188,7 @@ class Main{
         }
 
         status.append('installs', Plugins.get().reverse())
-
-        Account.Api.plugins((plugins)=>{
-            status.append('plugins', plugins)
-        })
+        status.append('plugins', [])
 
         if(window.lampa_settings.plugins_store){
             CUB.extensions((extensions)=>{

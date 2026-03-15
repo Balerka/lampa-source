@@ -1,7 +1,7 @@
 import Collection from './collection.js'
 
 let network = new Lampa.Reguest()
-let api_url = Lampa.Utils.protocol() + Lampa.Manifest.cub_domain + '/api/collections/'
+let api_url = Lampa.Utils.protocol() + Lampa.Manifest.cub_site + '/api/collections/'
 
 let collections = [
     {

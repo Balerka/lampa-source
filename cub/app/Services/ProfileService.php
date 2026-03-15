@@ -7,6 +7,11 @@ use App\Models\User;
 
 class ProfileService
 {
+    public function imagePath(Profile $profile): string
+    {
+        return '/storage/profiles/'.$profile->user_id.'/'.$profile->icon.'.webp';
+    }
+
     public function ensureMainProfile(User $user): Profile
     {
         $profile = $user->profiles()->where('main', true)->first();
@@ -69,8 +74,10 @@ class ProfileService
     {
         return [
             'id' => $profile->id,
+            'user_id' => $profile->user_id,
             'name' => $profile->name,
             'icon' => $profile->icon,
+            'image' => $this->imagePath($profile),
             'main' => (bool) $profile->main,
             'child' => (bool) $profile->child,
             'age' => (int) $profile->age,

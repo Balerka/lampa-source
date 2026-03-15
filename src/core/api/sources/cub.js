@@ -18,6 +18,10 @@ let network = new Reguest()
 let day     = 60 * 24
 let source  = 'cub'
 
+function sourceApi(path = ''){
+    return Utils.protocol() + Manifest.cub_site + '/api/' + path
+}
+
 function url(u, params = {}){
     let genre = params.genres
     
@@ -35,7 +39,7 @@ function url(u, params = {}){
 
     let email = Storage.get('account','{}').email || ''
 
-    return Utils.addUrlComponent(Utils.protocol() + 'tmdb.'+Manifest.cub_domain+'/' + u, 'email=' + encodeURIComponent(email))
+    return Utils.addUrlComponent(Utils.protocol() + 'tmdb.'+Manifest.cub_site+'/' + u, 'email=' + encodeURIComponent(email))
 }
 
 function add(u, params){
@@ -178,7 +182,7 @@ function main(params = {}, oncomplite, onerror){
     })
 
     if(!Permit.child_small){
-        network.silent(Utils.protocol() + Manifest.cub_domain + '/api/collections/list?category=new',(data)=>{
+        network.silent(Utils.protocol() + Manifest.cub_site + '/api/collections/list?category=new',(data)=>{
             data.results.forEach((collection,index)=>{
                 let event = (call_inner)=>{
                     get('collections/'+collection.id,{},(json)=>{
@@ -519,7 +523,7 @@ function full(params, oncomplite, onerror){
 }
 
 function trailers(type, oncomplite){
-    network.silent(Utils.protocol() + Manifest.cub_domain + '/api/trailers/short/trailers/' + type, (result)=>{
+    network.silent(sourceApi('trailers/short/trailers/' + type), (result)=>{
         result.title = Lang.translate('title_trailers') + ' - ' + Lang.translate('title_new')
 
         result.results.forEach(card=>{
@@ -539,7 +543,7 @@ function trailers(type, oncomplite){
 function reactionsGet(params, oncomplite){
     if(window.lampa_settings.disable_features.reactions) return oncomplite({result: []})
     
-    network.silent(Utils.protocol() + Manifest.cub_domain + '/api/reactions/get/' + params.method + '_' + params.id, oncomplite,()=>{
+    network.silent(sourceApi('reactions/get/' + params.method + '_' + params.id), oncomplite,()=>{
         oncomplite({result: []})
     }, false, {timeout: 1000 * 5})
 }
@@ -547,11 +551,11 @@ function reactionsGet(params, oncomplite){
 function discussGet(params, oncomplite, onerror){
     if(window.lampa_settings.disable_features.discuss) return onerror()
     
-    network.silent(Utils.protocol() + Manifest.cub_domain + '/api/discuss/get/'+params.method+'_'+params.id+'/' + (params.page || 1) + '/' + Storage.field('language'), oncomplite, onerror, false, {timeout: 1000 * 5})
+    network.silent(sourceApi('discuss/get/'+params.method+'_'+params.id+'/' + (params.page || 1) + '/' + Storage.field('language')), oncomplite, onerror, false, {timeout: 1000 * 5})
 }
 
 function reactionsAdd(params, oncomplite, onerror){
-    network.silent(Utils.protocol() + Manifest.cub_domain + '/api/reactions/add/' + params.method + '_' + params.id + '/' + params.type + '?uid=' + Storage.get('lampa_uid','none'), oncomplite, onerror)
+    network.silent(sourceApi('reactions/add/' + params.method + '_' + params.id + '/' + params.type) + '?uid=' + Storage.get('lampa_uid','none'), oncomplite, onerror)
 }
 
 function menuCategory(params, oncomplite){
@@ -662,17 +666,17 @@ function extensions(call){
     }
     
     network.timeout(5000)
-    network.silent(Utils.protocol() + Manifest.cub_domain + '/api/extensions/list', (result)=>{
+    network.silent(sourceApi('extensions/list'), (result)=>{
         if(result.secuses){
             Storage.set('account_extensions', result)
 
             call(result)
         }
         else{
-            call(Storage.get('account_extensions','{}'))
+            call(normalizeExtensionAssets(Storage.get('account_extensions','{}')))
         }
     },()=>{
-        call(Storage.get('account_extensions','{}'))
+        call(normalizeExtensionAssets(Storage.get('account_extensions','{}')))
     },false, headers)
     
 }

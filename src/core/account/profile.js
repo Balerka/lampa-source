@@ -46,8 +46,11 @@ function update(){
 
     if(Permit.token){
         profile_icon.append(Template.elem('img'))
+        let user_id = Permit.account.profile.user_id || Permit.user.id || ''
+        let icon    = Permit.account.profile.icon || 'l_1'
+        let path    = user_id ? user_id + '/' + icon : icon
 
-        Utils.imgLoad(profile_icon.find('img'), Utils.protocol() + Manifest.account_assets_domain + '/img/profiles/' + (Permit.account.profile.icon || 'l_1') + '.png', ()=>{}, (img)=>{
+        Utils.imgLoad(profile_icon.find('img'), Utils.protocol() + Manifest.account_assets_domain + '/storage/profiles/' + path + '.webp', ()=>{}, (img)=>{
             img.src = './img/img_load.svg'
         })
     }
@@ -121,9 +124,10 @@ function select(callback){
                 let maximum = Lampa.Account.hasPremium() ? 8 : 3
 
                 let list = items.map((elem, index)=>{
+                    let path = elem.user_id ? elem.user_id + '/' + elem.icon : elem.icon
                     elem.title    = elem.name
                     elem.template = 'selectbox_icon'
-                    elem.icon     = '<img src="' + Utils.protocol() + Manifest.account_assets_domain +'/img/profiles/'+elem.icon+'.png" />'
+                    elem.icon     = '<img src="' + Utils.protocol() + Manifest.account_assets_domain +'/storage/profiles/'+path+'.webp" />'
                     elem.clone    = clone[index]
                     elem.subtitle = elem.main ? Lang.translate('account_profile_main') : elem.child ? Lang.translate('account_profile_child') + ' ' + '(' + Lang.translate('filter_rating_to') + ' ' + (elem.age || 12) + ')' : ''
 

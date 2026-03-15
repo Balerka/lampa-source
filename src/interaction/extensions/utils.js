@@ -2,6 +2,22 @@ import Template from '../template'
 import Modal from '../modal'
 import Utils from '../../utils/utils'
 import Lang from '../../core/lang'
+import Manifest from '../../core/manifest'
+
+function imageUrl(url){
+    let image = (url || '') + ''
+
+    if(image && !/^https?:\/\//.test(image)) image = Utils.protocol() + Manifest.cub_site + (image.charAt(0) == '/' ? image : '/' + image)
+
+    image = Utils.rewriteIfHTTPS(image)
+    image = image.replace('cub.watch', Manifest.cub_site)
+
+    Manifest.old_mirrors.forEach((mirror)=>{
+        image = image.replace('://' + mirror, '://' + Manifest.cub_site)
+    })
+
+    return image
+}
 
 function showReload(cancel){
     Modal.open({
@@ -32,7 +48,7 @@ function showInfo(plug, back){
     let modal = Template.get('extensions_info')
     let footer = $('.extensions-info__footer',modal)
 
-    if(plug.image) modal.prepend($('<img class="extensions-info__image" src="'+plug.image+'"/>'))
+    if(plug.image) modal.prepend($('<img class="extensions-info__image" src="'+imageUrl(plug.image)+'"/>'))
 
     $('.extensions-info__descr',modal).text(plug.descr)
     $('.extensions-info__instruction',modal).html((plug.instruction || Lang.translate('extensions_no_info')).replace(/\n/g,'<br>').replace(/\s\s/g,'&nbsp;&nbsp;'))

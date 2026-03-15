@@ -22,6 +22,10 @@ function readArraySetting(name, fallback){
     return Object.prototype.toString.call(value) === '[object Array]' && value.length ? value : fallback
 }
 
+function hasSetting(name){
+    return Object.prototype.hasOwnProperty.call(settings(), name)
+}
+
 Object.defineProperty(object, 'app_digital', { get: ()=> parseInt(object.app_version.replace(/\./g,'')) })
 Object.defineProperty(object, 'css_digital', { get: ()=> parseInt(object.css_version.replace(/\./g,'')) })
 
@@ -66,7 +70,7 @@ Object.defineProperty(object, 'old_mirrors', {
 Object.defineProperty(object, 'cub_mirrors', {
     get: ()=> {
         let lampa = ['cub.rip', 'durex.monster', 'cubnotrip.top']
-        let forced = readArraySetting('cub_mirrors', [])
+        let forced = settings().cub_mirrors
         let users = localStorage.getItem('cub_mirrors') || '[]'
 
         try {
@@ -75,7 +79,8 @@ Object.defineProperty(object, 'cub_mirrors', {
             users = []
         }
 
-        if(forced.length){
+        // Explicitly provided array replaces built-in mirrors, including [] to disable mirror checks.
+        if(Object.prototype.toString.call(forced) === '[object Array]'){
             return forced
         }
 
@@ -104,11 +109,15 @@ Object.defineProperty(object, 'cub_domain', {
         let forced = readStringSetting('cub_domain', '')
         let use = localStorage.getItem('cub_domain') || ''
 
-        if(forced && object.cub_mirrors.indexOf(forced) > -1){
+        if(forced){
             return forced
         }
 
-        return object.cub_mirrors.indexOf(use) > -1 ? use : object.cub_mirrors[0]
+        if(object.cub_mirrors.indexOf(use) > -1){
+            return use
+        }
+
+        return hasSetting('cub_mirrors') ? '' : object.cub_mirrors[0]
     } 
 })
 

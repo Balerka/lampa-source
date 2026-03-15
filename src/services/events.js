@@ -56,7 +56,7 @@ function init(){
     let enabled = events.filter(e => e.enabled)
 
     if(enabled.length){
-        Utils.putScript(enabled.map(e=>Utils.protocol() + Manifest.cub_domain + '/plugin/' + e.name),()=>{})
+        Utils.putScript(enabled.map(e=>Utils.protocol() + Manifest.cub_site + '/plugin/' + e.name),()=>{})
     }
 }
 

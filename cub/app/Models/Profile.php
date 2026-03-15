@@ -47,4 +47,9 @@ class Profile extends Model
     {
         return $this->hasMany(Timeline::class);
     }
+
+    public function storages(): HasMany
+    {
+        return $this->hasMany(ProfileStorage::class);
+    }
 }

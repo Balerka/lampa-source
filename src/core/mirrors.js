@@ -78,6 +78,7 @@ function check(protocol, mirror, call){
 
 function task(call){
     if(!window.lampa_settings.mirrors) return call && call()
+    if(!Manifest.cub_mirrors.length) return call && call()
 
     let protocols = ['https://', 'http://']
 

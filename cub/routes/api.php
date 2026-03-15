@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\DeviceController;
 use App\Http\Controllers\Api\MiscController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\StorageController;
 use App\Http\Controllers\Api\TimelineController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,7 @@ Route::middleware('lampa.auth')->group(function (): void {
         Route::get('/timeline/dump', [TimelineController::class, 'dump']);
         Route::get('/timeline/changelog', [TimelineController::class, 'changelog']);
         Route::post('/timeline/update', [TimelineController::class, 'update']);
+        Route::get('/storage/data/{name}/{classType}', [StorageController::class, 'show']);
 
         Route::get('/notifications/all', [NotificationController::class, 'index']);
         Route::post('/notifications/add', [NotificationController::class, 'store']);

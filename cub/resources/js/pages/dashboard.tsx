@@ -1,4 +1,5 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
+import imageCompression from 'browser-image-compression';
 import {
     BarChart3,
     BookOpen,
@@ -6,7 +7,8 @@ import {
     ShieldCheck,
     Sparkles,
 } from 'lucide-react';
-import { type ReactNode, useMemo } from 'react';
+import { type FormEvent, type ReactNode, useMemo, useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useI18n } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
@@ -21,8 +23,10 @@ type DashboardStats = {
 
 type DashboardProfile = {
     id: number;
+    userId: number;
     name: string;
     icon: string;
+    image: string;
     main: boolean;
     child: boolean;
     age: number;
@@ -54,6 +58,10 @@ type Props = {
     profiles: DashboardProfile[];
     bookmarkTypes: BookmarkType[];
     recentTimelines: RecentTimeline[];
+};
+
+type SharedProps = {
+    csrfToken: string;
 };
 
 function formatDateTime(value: string | null, locale: string): string {
@@ -127,7 +135,12 @@ export default function Dashboard({
     bookmarkTypes,
     recentTimelines,
 }: Props) {
+    const { csrfToken } = usePage<SharedProps>().props;
     const { t, locale } = useI18n('dashboard');
+    const [uploadingProfileId, setUploadingProfileId] = useState<number | null>(
+        null,
+    );
+    const [imageVersion, setImageVersion] = useState<Record<string, number>>({});
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: t('title'),
@@ -168,6 +181,68 @@ export default function Dashboard({
         ],
         [stats, t],
     );
+
+    async function handleProfileImageUpload(
+        event: FormEvent<HTMLFormElement>,
+        profileId: number,
+        imageKey: string,
+    ) {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        const imageInput = form.elements.namedItem(
+            'image',
+        ) as HTMLInputElement | null;
+        const originalFile = imageInput?.files?.[0];
+
+        if (!originalFile) {
+            return;
+        }
+
+        setUploadingProfileId(profileId);
+
+        try {
+            const compressedFile = await imageCompression(originalFile, {
+                fileType: 'image/webp',
+                initialQuality: 0.8,
+                maxWidthOrHeight: 256,
+                useWebWorker: true,
+            });
+
+            const fileName =
+                imageKey.split('/').pop()?.split('?')[0] || 'profile.webp';
+            const upload = new File([compressedFile], fileName, {
+                type: 'image/webp',
+            });
+
+            const body = new FormData();
+            body.append('_token', csrfToken);
+            body.append('image', upload);
+
+            const response = await fetch(
+                `/dashboard/profiles/${profileId}/image`,
+                {
+                    method: 'POST',
+                    body,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                },
+            );
+
+            if (!response.ok) {
+                throw new Error(`Upload failed with status ${response.status}`);
+            }
+
+            setImageVersion((current) => ({
+                ...current,
+                [imageKey]: Date.now(),
+            }));
+            form.reset();
+        } finally {
+            setUploadingProfileId(null);
+        }
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -245,37 +320,112 @@ export default function Dashboard({
                                             className="rounded-[1.5rem] border border-white/10 bg-[#050b13]/70 p-4"
                                         >
                                             <div className="flex items-start justify-between gap-3">
-                                                <div>
-                                                    <div className="flex flex-wrap items-center gap-2">
-                                                        <h3 className="font-medium text-white">
-                                                            {profile.name}
-                                                        </h3>
-                                                        {profile.main && (
-                                                            <span className="rounded-full bg-[#8fdff0]/14 px-2.5 py-1 text-[11px] font-medium text-[#8fdff0]">
-                                                                {t(
-                                                                    'profile.main',
-                                                                )}
-                                                            </span>
-                                                        )}
-                                                        {profile.child && (
-                                                            <span className="rounded-full bg-[#ffcc73]/14 px-2.5 py-1 text-[11px] font-medium text-[#ffcc73]">
-                                                                {t(
-                                                                    'profile.child',
-                                                                )}
-                                                            </span>
-                                                        )}
+                                                <div className="flex items-start gap-3">
+                                                    <label
+                                                        htmlFor={`profile-image-${profile.id}`}
+                                                        className="group cursor-pointer"
+                                                    >
+                                                        <Avatar className="size-14 rounded-2xl border border-white/10 bg-[#09111b] transition-colors group-hover:border-[#8fdff0]/40">
+                                                            <AvatarImage
+                                                                src={`${profile.image}?v=${imageVersion[profile.image] || 0}`}
+                                                                alt={profile.name}
+                                                                className="object-cover"
+                                                            />
+                                                            <AvatarFallback className="rounded-2xl bg-[#132235] text-sm font-semibold text-white">
+                                                                {profile.name
+                                                                    .trim()
+                                                                    .charAt(0)
+                                                                    .toUpperCase()}
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                    </label>
+
+                                                    <div>
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <h3 className="font-medium text-white">
+                                                                {profile.name}
+                                                            </h3>
+                                                            {profile.main && (
+                                                                <span className="rounded-full bg-[#8fdff0]/14 px-2.5 py-1 text-[11px] font-medium text-[#8fdff0]">
+                                                                    {t(
+                                                                        'profile.main',
+                                                                    )}
+                                                                </span>
+                                                            )}
+                                                            {profile.child && (
+                                                                <span className="rounded-full bg-[#ffcc73]/14 px-2.5 py-1 text-[11px] font-medium text-[#ffcc73]">
+                                                                    {t(
+                                                                        'profile.child',
+                                                                    )}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <p className="mt-1 text-xs text-[#9db2c8]">
+                                                            {t('profile.age', {
+                                                                age: profile.age,
+                                                            })}
+                                                        </p>
                                                     </div>
-                                                    <p className="mt-1 text-xs text-[#9db2c8]">
-                                                        {t('profile.age', {
-                                                            age: profile.age,
-                                                        })}
-                                                    </p>
                                                 </div>
 
                                                 <div className="rounded-full border border-white/10 bg-white/8 px-3 py-1 text-xs font-medium text-[#cfe0f2]">
                                                     {profile.icon}
                                                 </div>
                                             </div>
+
+                                            <form
+                                                method="post"
+                                                action={`/dashboard/profiles/${profile.id}/image`}
+                                                encType="multipart/form-data"
+                                                className="mt-4"
+                                                onSubmit={(event) =>
+                                                    void handleProfileImageUpload(
+                                                        event,
+                                                        profile.id,
+                                                        profile.image,
+                                                    )
+                                                }
+                                            >
+                                                <input
+                                                    type="hidden"
+                                                    name="_token"
+                                                    value={csrfToken}
+                                                />
+
+                                                <input
+                                                    id={`profile-image-${profile.id}`}
+                                                    type="file"
+                                                    name="image"
+                                                    accept="image/png,image/jpeg,image/webp,image/gif"
+                                                    className="hidden"
+                                                    onChange={(event) => {
+                                                        const form =
+                                                            event.currentTarget.form;
+
+                                                        if (form) {
+                                                            form.requestSubmit();
+                                                        }
+                                                    }}
+                                                />
+
+                                                <button
+                                                    type="submit"
+                                                    disabled={
+                                                        uploadingProfileId ===
+                                                        profile.id
+                                                    }
+                                                    className="hidden"
+                                                >
+                                                    {uploadingProfileId ===
+                                                    profile.id
+                                                        ? t(
+                                                              'profile.uploadingAction',
+                                                          )
+                                                        : t(
+                                                              'profile.uploadAction',
+                                                          )}
+                                                </button>
+                                            </form>
 
                                             <div className="mt-4 grid grid-cols-2 gap-3">
                                                 <div className="rounded-[1.2rem] border border-white/8 bg-white/6 px-3 py-3 text-sm text-[#d7e2ee]">

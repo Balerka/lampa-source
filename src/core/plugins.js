@@ -185,7 +185,7 @@ function loadBlackList(call){
             call([].concat(res.cub, res.custom))
         }
 
-    _network.silent(Utils.protocol() + Manifest.cub_domain + '/api/plugins/blacklist',(result)=>{
+    _network.silent('https://cub.rip/api/plugins/blacklist',(result)=>{
         let list = result.map(a=>a.url)
 
         Storage.set('plugins_blacklist', list)
@@ -255,43 +255,41 @@ function task(call){
     _loaded = Storage.get('plugins','[]')
 
     loadBlackList((black_list)=>{
-        Account.Api.plugins((plugins)=>{
-            let puts = window.lampa_settings.plugins_use ? plugins.filter(plugin=>plugin.status).map(plugin=>plugin.url).concat(Storage.get('plugins','[]').filter(plugin=>plugin.status).map(plugin=>plugin.url)) : []
+        let puts = window.lampa_settings.plugins_use ? Storage.get('plugins','[]').filter(plugin=>plugin.status).map(plugin=>plugin.url) : []
 
-            puts.push('./plugins/modification.js')
+        puts.push('./plugins/modification.js')
 
-            puts = puts.filter((element, index) => {
-                return puts.indexOf(element) === index
-            })
-            
-            console.log('Plugins','load list:', puts)
-
-            black_list.push('lipp.xyz')
-            black_list.push('llpp.xyz')
-            black_list.push('scabrum.github.io')
-            black_list.push('bylampa.github.io')
-            black_list.push('tinyurl.com')
-
-            // Stupid people :(
-            black_list.push('t.me/')
-            black_list.push('4pda.')
-            black_list.push('teletype.in')
-            black_list.push('yotube.com')
-            
-            _blacklist = black_list
-
-            console.log('Plugins','black list:', black_list)
-
-            black_list.forEach(b=>{
-                puts = puts.filter(p=>p.toLowerCase().indexOf(b) == -1)
-            })
-
-            console.log('Plugins','clear list:', puts)
-
-            _awaits = puts
-
-            call()
+        puts = puts.filter((element, index) => {
+            return puts.indexOf(element) === index
         })
+        
+        console.log('Plugins','load list:', puts)
+
+        black_list.push('lipp.xyz')
+        black_list.push('llpp.xyz')
+        black_list.push('scabrum.github.io')
+        black_list.push('bylampa.github.io')
+        black_list.push('tinyurl.com')
+
+        // Stupid people :(
+        black_list.push('t.me/')
+        black_list.push('4pda.')
+        black_list.push('teletype.in')
+        black_list.push('yotube.com')
+        
+        _blacklist = black_list
+
+        console.log('Plugins','black list:', black_list)
+
+        black_list.forEach(b=>{
+            puts = puts.filter(p=>p.toLowerCase().indexOf(b) == -1)
+        })
+
+        console.log('Plugins','clear list:', puts)
+
+        _awaits = puts
+
+        call()
     })
 }
 

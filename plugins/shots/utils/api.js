@@ -1,6 +1,6 @@
 function url(u){
     //return 'http://localhost:3100/api/shots/' + u
-    return Lampa.Utils.protocol() + Lampa.Manifest.cub_domain + '/api/shots/' + u
+    return Lampa.Utils.protocol() + Lampa.Manifest.cub_site + '/api/shots/' + u
 }
 
 function params(timeout = 15000) {

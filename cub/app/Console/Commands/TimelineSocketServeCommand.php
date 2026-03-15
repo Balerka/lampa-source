@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\ProfileService;
+use App\Services\StorageSyncService;
 use App\Services\TimelineService;
 use App\Services\UserService;
 use Illuminate\Console\Command;
@@ -28,6 +29,7 @@ class TimelineSocketServeCommand extends Command
         protected UserService $users,
         protected ProfileService $profiles,
         protected TimelineService $timelines,
+        protected StorageSyncService $storage,
     ) {
         parent::__construct();
     }
@@ -287,8 +289,23 @@ class TimelineSocketServeCommand extends Command
 
                     return;
 
+                case 'storage':
+                    $profileId = Arr::get($message, 'account.profile.id', Arr::get($message, 'params.profile'));
+                    $profile = $this->profiles->resolveActiveProfile($user, $profileId);
+                    $this->clients[$clientId]['profile_id'] = $profile->id;
+                    $result = $this->storage->applySocketMutation($profile, (array) Arr::get($message, 'params', []));
+
+                    $this->broadcastStorage(
+                        $result,
+                        $user->id,
+                        $profile->id,
+                        $this->clients[$clientId]['device_id'],
+                    );
+
+                    return;
+
                 default:
-                    $this->sendError($clientId, 'unsupported_method', 'Only method=timeline is supported.');
+                    $this->sendError($clientId, 'unsupported_method', 'Supported methods: timeline, storage.');
 
                     return;
             }
@@ -309,6 +326,30 @@ class TimelineSocketServeCommand extends Command
         $payload = [
             'method' => 'timeline',
             'data' => $timeline,
+        ];
+
+        foreach ($this->clients as $client) {
+            if (! $client['handshake']) {
+                continue;
+            }
+
+            if ($client['user_id'] !== $userId || $client['profile_id'] !== $profileId) {
+                continue;
+            }
+
+            if ($exceptDeviceId !== null && $client['device_id'] === $exceptDeviceId) {
+                continue;
+            }
+
+            $this->sendJson($client['socket'], $payload);
+        }
+    }
+
+    protected function broadcastStorage(array $storage, int $userId, int $profileId, ?string $exceptDeviceId = null): void
+    {
+        $payload = [
+            'method' => 'storage',
+            'data' => $storage,
         ];
 
         foreach ($this->clients as $client) {

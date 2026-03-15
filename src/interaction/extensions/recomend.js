@@ -17,7 +17,7 @@ class Recomend extends Extension{
             this.img.classList.add('loaded')
         }
 
-        this.img.src = Utils.fixMirrorLink(Utils.rewriteIfHTTPS(this.data.image))
+        this.img.src = this.image(this.data.image)
     }
 
     destroy(){

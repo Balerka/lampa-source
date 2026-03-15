@@ -63,7 +63,7 @@ export default {
                 // Пихают там всякие иконки и прочее, удаляем лишнее
                 delete person.biography
 
-                Lampa.Network.silent(Utils.protocol() + Manifest.cub_domain + '/api/person/' + (this.subscribed ? 'unsubscribe' : 'subscribe'), ()=>{
+                Lampa.Network.silent(Utils.protocol() + Manifest.cub_site + '/api/person/' + (this.subscribed ? 'unsubscribe' : 'subscribe'), ()=>{
                     if(this.subscribed) Arrays.remove(subscribes, this.data.id)
                     else if(subscribes.indexOf(this.data.id) == -1) subscribes.push(this.data.id)
 

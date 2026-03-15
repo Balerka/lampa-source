@@ -4,7 +4,7 @@ import M3u8 from './m3u8'
 
 class Api{
     static network = new Lampa.Reguest()
-    static api_url = Lampa.Utils.protocol() + Lampa.Manifest.cub_domain + '/api/iptv/'
+    static api_url = Lampa.Utils.protocol() + Lampa.Manifest.cub_site + '/api/iptv/'
 
     static get(method, catch_error){
         return new Promise((resolve, reject)=>{
