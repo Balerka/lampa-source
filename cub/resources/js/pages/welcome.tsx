@@ -15,9 +15,9 @@ export default function Welcome({ openapiUrl, healthUrl }: WelcomeProps) {
             </Head>
             <div
                 className="min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top_left,_#f9e7c6,_transparent_35%),linear-gradient(135deg,_#102542_0%,_#0a0f18_45%,_#09111b_100%)] px-6 py-10 text-[#f5efe3] md:px-10">
-                <div className="mx-auto max-w-6xl flex flex-col-reverse lg:flex-row gap-6 items-center justify-center">
+                <div className="mx-auto max-w-6xl flex flex-col-reverse items-center justify-center gap-6 lg:flex-row lg:items-stretch">
                     <section
-                        className="overflow-hidden rounded-4xl border border-white/10 bg-white/8 p-8 shadow-[0_30px_80px_rgba(0,0,0,0.35)] backdrop-blur">
+                        className="flex flex-1 flex-col overflow-hidden rounded-4xl border border-white/10 bg-white/8 p-8 shadow-[0_30px_80px_rgba(0,0,0,0.35)] backdrop-blur">
                         <p className="text-xs uppercase tracking-[0.35em] text-[#ffcb71]">
                             {t('badge')}
                         </p>
@@ -44,7 +44,7 @@ export default function Welcome({ openapiUrl, healthUrl }: WelcomeProps) {
                     </section>
 
                     <section
-                        className="rounded-4xl h-full border border-[#ffcb71]/20 bg-[#0d1726]/85 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.28)]">
+                        className="flex flex-1 flex-col rounded-4xl border border-[#ffcb71]/20 bg-[#0d1726]/85 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.28)]">
                         <p className="text-xs uppercase tracking-[0.3em] text-[#ffcb71]">
                             {t('signInBadge')}
                         </p>

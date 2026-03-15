@@ -6,20 +6,21 @@ import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useI18n } from '@/i18n';
 import AuthLayout from '@/layouts/auth-layout';
 import { login } from '@/routes';
 import { email } from '@/routes/password';
 
 export default function ForgotPassword({ status }: { status?: string }) {
+    const { t } = useI18n('auth.forgotPassword');
+    const { t: common } = useI18n('common');
+
     return (
-        <AuthLayout
-            title="Forgot password"
-            description="Enter your email to receive a password reset link"
-        >
-            <Head title="Forgot password" />
+        <AuthLayout title={t('title')} description={t('description')}>
+            <Head title={t('headTitle')} />
 
             {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
+                <div className="mb-4 text-center text-sm font-medium text-[#8fdff0]">
                     {status}
                 </div>
             )}
@@ -29,7 +30,9 @@ export default function ForgotPassword({ status }: { status?: string }) {
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">
+                                    {common('emailAddress')}
+                                </Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -51,16 +54,16 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                     {processing && (
                                         <LoaderCircle className="h-4 w-4 animate-spin" />
                                     )}
-                                    Email password reset link
+                                    {t('submit')}
                                 </Button>
                             </div>
                         </>
                     )}
                 </Form>
 
-                <div className="space-x-1 text-center text-sm text-muted-foreground">
-                    <span>Or, return to</span>
-                    <TextLink href={login()}>log in</TextLink>
+                <div className="space-x-1 text-center text-sm text-[#9db2c8]">
+                    <span>{t('returnTo')}</span>
+                    <TextLink href={login()}>{t('logIn')}</TextLink>
                 </div>
             </div>
         </AuthLayout>

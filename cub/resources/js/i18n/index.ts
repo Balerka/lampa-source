@@ -1,5 +1,13 @@
 import { usePage } from '@inertiajs/react';
-import { translations, type AppLocale } from './translations';
+import { en } from './en';
+import { ru } from './ru';
+
+const dictionaries = {
+    ru,
+    en,
+} as const;
+
+type AppLocale = keyof typeof dictionaries;
 
 type Params = Record<string, string | number>;
 
@@ -15,7 +23,7 @@ function interpolate(template: string, params: Params = {}): string {
 
 function resolve(locale: AppLocale, key: string): string {
     const segments = key.split('.');
-    let value: unknown = translations[locale];
+    let value: unknown = dictionaries[locale];
 
     for (const segment of segments) {
         value = (value as Record<string, unknown> | undefined)?.[segment];

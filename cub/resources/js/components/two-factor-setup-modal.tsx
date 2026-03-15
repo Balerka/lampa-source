@@ -21,17 +21,18 @@ import { Spinner } from '@/components/ui/spinner';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useClipboard } from '@/hooks/use-clipboard';
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
+import { useI18n } from '@/i18n';
 import { confirm } from '@/routes/two-factor';
 
 function GridScanIcon() {
     return (
-        <div className="mb-3 rounded-full border border-border bg-card p-0.5 shadow-sm">
-            <div className="relative overflow-hidden rounded-full border border-border bg-muted p-2.5">
+        <div className="mb-3 rounded-full border border-white/12 bg-white/8 p-0.5 shadow-sm">
+            <div className="relative overflow-hidden rounded-full border border-white/12 bg-[#050b13]/80 p-2.5">
                 <div className="absolute inset-0 grid grid-cols-5 opacity-50">
                     {Array.from({ length: 5 }, (_, i) => (
                         <div
                             key={`col-${i + 1}`}
-                            className="border-r border-border last:border-r-0"
+                            className="border-r border-white/10 last:border-r-0"
                         />
                     ))}
                 </div>
@@ -39,11 +40,11 @@ function GridScanIcon() {
                     {Array.from({ length: 5 }, (_, i) => (
                         <div
                             key={`row-${i + 1}`}
-                            className="border-b border-border last:border-b-0"
+                            className="border-b border-white/10 last:border-b-0"
                         />
                     ))}
                 </div>
-                <ScanLine className="relative z-20 size-6 text-foreground" />
+                <ScanLine className="relative z-20 size-6 text-[#ffcb71]" />
             </div>
         </div>
     );
@@ -65,6 +66,7 @@ function TwoFactorSetupStep({
     const { resolvedAppearance } = useAppearance();
     const [copiedText, copy] = useClipboard();
     const IconComponent = copiedText === manualSetupKey ? Check : Copy;
+    const { t } = useI18n('settings.twoFactor');
 
     return (
         <>
@@ -73,7 +75,7 @@ function TwoFactorSetupStep({
             ) : (
                 <>
                     <div className="mx-auto flex max-w-md overflow-hidden">
-                        <div className="mx-auto aspect-square w-64 rounded-lg border border-border">
+                        <div className="mx-auto aspect-square w-64 rounded-[1.25rem] border border-white/10 bg-white/6 p-2">
                             <div className="z-10 flex h-full w-full items-center justify-center p-5">
                                 {qrCodeSvg ? (
                                     <div
@@ -102,16 +104,16 @@ function TwoFactorSetupStep({
                     </div>
 
                     <div className="relative flex w-full items-center justify-center">
-                        <div className="absolute inset-0 top-1/2 h-px w-full bg-border" />
-                        <span className="relative bg-card px-2 py-1">
-                            or, enter the code manually
+                        <div className="absolute inset-0 top-1/2 h-px w-full bg-white/10" />
+                        <span className="relative bg-[#102542] px-2 py-1 text-[#9db2c8]">
+                            {t('setupManualOr')}
                         </span>
                     </div>
 
                     <div className="flex w-full space-x-2">
-                        <div className="flex w-full items-stretch overflow-hidden rounded-xl border border-border">
+                        <div className="flex w-full items-stretch overflow-hidden rounded-[1.25rem] border border-white/12">
                             {!manualSetupKey ? (
-                                <div className="flex h-full w-full items-center justify-center bg-muted p-3">
+                                <div className="flex h-full w-full items-center justify-center bg-[#050b13]/80 p-3">
                                     <Spinner />
                                 </div>
                             ) : (
@@ -120,11 +122,11 @@ function TwoFactorSetupStep({
                                         type="text"
                                         readOnly
                                         value={manualSetupKey}
-                                        className="h-full w-full bg-background p-3 text-foreground outline-none"
+                                        className="h-full w-full bg-[#050b13]/80 p-3 text-white outline-none"
                                     />
                                     <button
                                         onClick={() => copy(manualSetupKey)}
-                                        className="border-l border-border px-3 hover:bg-muted"
+                                        className="border-l border-white/12 px-3 text-[#d4dfec] hover:bg-white/8"
                                     >
                                         <IconComponent className="w-4" />
                                     </button>
@@ -147,6 +149,7 @@ function TwoFactorVerificationStep({
 }) {
     const [code, setCode] = useState<string>('');
     const pinInputContainerRef = useRef<HTMLDivElement>(null);
+    const { t } = useI18n('common');
 
     useEffect(() => {
         setTimeout(() => {
@@ -209,7 +212,7 @@ function TwoFactorVerificationStep({
                                 onClick={onBack}
                                 disabled={processing}
                             >
-                                Back
+                                {t('back')}
                             </Button>
                             <Button
                                 type="submit"
@@ -218,7 +221,7 @@ function TwoFactorVerificationStep({
                                     processing || code.length < OTP_MAX_LENGTH
                                 }
                             >
-                                Confirm
+                                {t('confirm')}
                             </Button>
                         </div>
                     </div>
@@ -251,6 +254,8 @@ export default function TwoFactorSetupModal({
     fetchSetupData,
     errors,
 }: Props) {
+    const { t } = useI18n('settings.twoFactor');
+    const { t: common } = useI18n('common');
     const [showVerificationStep, setShowVerificationStep] =
         useState<boolean>(false);
 
@@ -261,29 +266,26 @@ export default function TwoFactorSetupModal({
     }>(() => {
         if (twoFactorEnabled) {
             return {
-                title: 'Two-factor authentication enabled',
-                description:
-                    'Two-factor authentication is now enabled. Scan the QR code or enter the setup key in your authenticator app.',
-                buttonText: 'Close',
+                title: t('setupEnabledTitle'),
+                description: t('setupEnabledDescription'),
+                buttonText: common('close'),
             };
         }
 
         if (showVerificationStep) {
             return {
-                title: 'Verify authentication code',
-                description:
-                    'Enter the 6-digit code from your authenticator app',
-                buttonText: 'Continue',
+                title: t('setupVerifyTitle'),
+                description: t('setupVerifyDescription'),
+                buttonText: common('continue'),
             };
         }
 
         return {
-            title: 'Enable two-factor authentication',
-            description:
-                'To finish enabling two-factor authentication, scan the QR code or enter the setup key in your authenticator app',
-            buttonText: 'Continue',
+            title: t('setupEnableTitle'),
+            description: t('setupEnableDescription'),
+            buttonText: common('continue'),
         };
-    }, [twoFactorEnabled, showVerificationStep]);
+    }, [twoFactorEnabled, showVerificationStep, t, common]);
 
     const handleModalNextStep = useCallback(() => {
         if (requiresConfirmation) {

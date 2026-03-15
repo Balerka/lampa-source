@@ -7,7 +7,14 @@ type Props = React.ComponentProps<'main'> & {
 
 export function AppContent({ variant = 'header', children, ...props }: Props) {
     if (variant === 'sidebar') {
-        return <SidebarInset {...props}>{children}</SidebarInset>;
+        return (
+            <SidebarInset
+                className="bg-[radial-gradient(circle_at_top_left,#f9e7c6,transparent_30%),linear-gradient(135deg,#102542_0%,#0a0f18_45%,#09111b_100%)]"
+                {...props}
+            >
+                {children}
+            </SidebarInset>
+        );
     }
 
     return (

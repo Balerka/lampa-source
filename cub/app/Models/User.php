@@ -39,6 +39,16 @@ class User extends Authenticatable
         return $this->hasMany(Profile::class);
     }
 
+    public function bookmarks(): HasMany
+    {
+        return $this->hasMany(Bookmark::class);
+    }
+
+    public function timelines(): HasMany
+    {
+        return $this->hasMany(Timeline::class);
+    }
+
     public function tokens(): HasMany
     {
         return $this->hasMany(UserToken::class);

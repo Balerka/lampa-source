@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { useI18n } from '@/i18n';
 import AuthLayout from '@/layouts/auth-layout';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
@@ -22,12 +23,12 @@ export default function Login({
     canResetPassword,
     canRegister,
 }: Props) {
+    const { t } = useI18n('auth.login');
+    const { t: common } = useI18n('common');
+
     return (
-        <AuthLayout
-            title="Log in to your account"
-            description="Enter your email and password below to log in"
-        >
-            <Head title="Log in" />
+        <AuthLayout title={t('title')} description={t('description')}>
+            <Head title={t('headTitle')} />
 
             <Form
                 {...store.form()}
@@ -38,7 +39,9 @@ export default function Login({
                     <>
                         <div className="grid gap-6">
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">
+                                    {common('emailAddress')}
+                                </Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -54,14 +57,16 @@ export default function Login({
 
                             <div className="grid gap-2">
                                 <div className="flex items-center">
-                                    <Label htmlFor="password">Password</Label>
+                                    <Label htmlFor="password">
+                                        {common('password')}
+                                    </Label>
                                     {canResetPassword && (
                                         <TextLink
                                             href={request()}
                                             className="ml-auto text-sm"
                                             tabIndex={5}
                                         >
-                                            Forgot password?
+                                            {t('forgotPassword')}
                                         </TextLink>
                                     )}
                                 </div>
@@ -72,7 +77,7 @@ export default function Login({
                                     required
                                     tabIndex={2}
                                     autoComplete="current-password"
-                                    placeholder="Password"
+                                    placeholder={common('password')}
                                 />
                                 <InputError message={errors.password} />
                             </div>
@@ -83,7 +88,9 @@ export default function Login({
                                     name="remember"
                                     tabIndex={3}
                                 />
-                                <Label htmlFor="remember">Remember me</Label>
+                                <Label htmlFor="remember">
+                                    {t('rememberMe')}
+                                </Label>
                             </div>
 
                             <Button
@@ -94,15 +101,15 @@ export default function Login({
                                 data-test="login-button"
                             >
                                 {processing && <Spinner />}
-                                Log in
+                                {t('submit')}
                             </Button>
                         </div>
 
                         {canRegister && (
-                            <div className="text-center text-sm text-muted-foreground">
-                                Don't have an account?{' '}
+                            <div className="text-center text-sm text-[#9db2c8]">
+                                {t('noAccount')}{' '}
                                 <TextLink href={register()} tabIndex={5}>
-                                    Sign up
+                                    {t('signUp')}
                                 </TextLink>
                             </div>
                         )}
@@ -111,7 +118,7 @@ export default function Login({
             </Form>
 
             {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
+                <div className="mb-4 text-center text-sm font-medium text-[#8fdff0]">
                     {status}
                 </div>
             )}

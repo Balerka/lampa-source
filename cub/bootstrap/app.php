@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
         $middleware->throttleApi('lampa');
+        $middleware->redirectUsersTo('/add');
         $middleware->alias([
             'lampa.auth' => AuthenticateLampaToken::class,
             'lampa.profile' => ResolveActiveProfile::class,
