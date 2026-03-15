@@ -4,7 +4,7 @@
   "description": "Lampa",
   "main": "index.js",
   "scripts": {
-    "start": "gulp",
+    "start": "npm exec --prefix cub concurrently -- --names lampa,cub,socket --kill-others-on-fail \"gulp\" \"composer --working-dir=cub dev\" \"composer --working-dir=cub socket:serve\"",
     "debug": "gulp debug",
     "test": "vitest",
     "doc": "gulp doc"
