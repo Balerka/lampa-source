@@ -39,8 +39,6 @@ pnpm-debug.log
 /.zed
 /.editorconfig
 .npmrc
-composer.lock
-package-lock.json
 /deploy
 .env.example
 .prettierignore
