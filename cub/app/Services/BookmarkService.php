@@ -27,19 +27,37 @@ class BookmarkService
 
     public function changelog(Profile $profile, int $since): array
     {
+        $entries = BookmarkChangelog::query()
+            ->where('profile_id', $profile->id)
+            ->where('version', '>', $since)
+            ->orderBy('version')
+            ->get();
+
+        $bookmarks = Bookmark::query()
+            ->where('profile_id', $profile->id)
+            ->whereIn('id', $entries->pluck('entity_id')->filter()->all())
+            ->get()
+            ->keyBy('id');
+
         return [
             'version' => (int) $profile->bookmarks_version,
-            'changelog' => BookmarkChangelog::query()
-                ->where('profile_id', $profile->id)
-                ->where('version', '>', $since)
-                ->orderBy('version')
-                ->get()
-                ->map(fn (BookmarkChangelog $entry) => [
-                    'action' => $entry->action,
-                    'entity_id' => $entry->entity_id,
-                    'updated_at' => $this->formatDateTime($entry->updated_at),
-                    'data' => $entry->data,
-                ])
+            'changelog' => $entries
+                ->map(function (BookmarkChangelog $entry) use ($bookmarks): array {
+                    $payload = [
+                        'action' => $entry->action,
+                        'entity_id' => $entry->entity_id,
+                        'updated_at' => $this->formatDateTime($entry->updated_at),
+                        'data' => $entry->data,
+                    ];
+
+                    $bookmark = $entry->entity_id ? $bookmarks->get($entry->entity_id) : null;
+
+                    if ($bookmark) {
+                        $payload = array_merge($payload, $this->serializeBookmark($bookmark));
+                    }
+
+                    return $payload;
+                })
                 ->all(),
         ];
     }
@@ -296,9 +314,10 @@ class BookmarkService
     protected function findBookmark(Profile $profile, array $payload): ?Bookmark
     {
         $query = Bookmark::query()->where('profile_id', $profile->id);
+        $clientId = (int) Arr::get($payload, 'id', 0);
 
-        if (filled(Arr::get($payload, 'id'))) {
-            return $query->where('client_id', (int) Arr::get($payload, 'id'))->first();
+        if ($clientId > 0) {
+            return $query->where('client_id', $clientId)->first();
         }
 
         return $query
@@ -310,9 +329,10 @@ class BookmarkService
     protected function matchingBookmarks(Profile $profile, array $payload): Collection
     {
         $query = Bookmark::query()->where('profile_id', $profile->id);
+        $clientId = (int) Arr::get($payload, 'id', 0);
 
-        if (filled(Arr::get($payload, 'id'))) {
-            return $query->where('client_id', (int) Arr::get($payload, 'id'))->get();
+        if ($clientId > 0) {
+            return $query->where('client_id', $clientId)->get();
         }
 
         return $query
