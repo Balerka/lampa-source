@@ -51,6 +51,8 @@ function connect(){
     let pt = Platform.is('orsay') || Platform.is('netcast') ? ':8080' : ':8443'
 
     let mirrors = socketHosts()
+    if(!mirrors.length && !window.lampa_settings.socket_url) return
+
     let mirror  = mirrors[used_mirrors + 1] || mirrors[0]
 
     used_mirrors = (used_mirrors + 1) % mirrors.length

@@ -1,6 +1,6 @@
 import Permit from './permit'
 import Utils from '../../utils/utils'
-import Manifest from '../manifest'
+import Backend from '../backend'
 import Reguest from '../../utils/reguest'
 import Arrays from '../../utils/arrays'
 import Storage from '../storage/storage'
@@ -8,53 +8,12 @@ import Modal from './modal'
 
 let network = new Reguest()
 
-let backendRoutes = [
-    /^device\/add$/,
-    /^device\/code\/manual$/,
-    /^device\/code\/create$/,
-    /^users\/get$/,
-    /^profiles\/all$/,
-    /^profiles\/create$/,
-    /^notice\/all$/,
-    /^person\/list$/,
-    /^users\/backup\/import$/,
-    /^users\/backup\/export$/,
-    /^bookmarks\/dump$/,
-    /^bookmarks\/changelog$/,
-    /^bookmarks\/add$/,
-    /^bookmarks\/remove$/,
-    /^bookmarks\/clear$/,
-    /^bookmarks\/sync$/,
-    /^timeline\/dump$/,
-    /^timeline\/changelog$/,
-    /^timeline\/update$/,
-    /^storage\/data\/[^/]+\/[^/]+$/,
-    /^notifications\/all$/,
-    /^notifications\/add$/
-]
-
 function url(){
-    return Utils.protocol() + Manifest.account_domain + '/api/'
-}
-
-function sourceUrl(){
-    return Utils.protocol() + Manifest.cub_site + '/api/'
-}
-
-function normalizePath(path = ''){
-    return (path + '').replace(/^\/+/, '').split('?')[0]
-}
-
-function useBackend(path){
-    let normalized = normalizePath(path)
-
-    return backendRoutes.some((route)=> route.test(normalized))
+    return Backend.url()
 }
 
 function resolveUrl(path, params = {}){
-    if(params.url) return params.url
-
-    return (useBackend(path) ? url() : sourceUrl()) + path
+    return params.url || Backend.url(path)
 }
 
 function load(path, params = {}, post = false){

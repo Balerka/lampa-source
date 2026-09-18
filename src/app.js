@@ -110,7 +110,6 @@ import Router from './core/router'
 import Timer from './core/timer'
 
 import ServiceTorserver from './services/torrserver'
-import ServiceWatched from './services/watched'
 import ServiceSettings from './services/settings'
 import ServiceLibs from './services/libs'
 import ServiceDeveloper from './services/developer'
@@ -189,7 +188,7 @@ Arrays.extend(window.lampa_settings,{
     plugins_use: true,
 
     // Разрешить использование магазина расширений
-    plugins_store: true,
+    plugins_store: false,
 
     // Показывать кнопку торрентов
     torrents_use: torrents_use,
@@ -197,21 +196,21 @@ Arrays.extend(window.lampa_settings,{
     // Отключить фитчи куба и лампы
     disable_features: {
         // Блокировку карточек
-        dmca: false,
+        dmca: true,
         // Реакции
-        reactions: false,
+        reactions: true,
         // Обсуждения
-        discuss: false,
+        discuss: true,
         // ИИ
-        ai: false,
+        ai: true,
         // Подписка на уведомления
         subscribe: false,
         // Черный список плагинов
         blacklist: false,
         // Подписка на актеров
-        persons: false,
+        persons: true,
         // Вспомогатиленые сервисы на подписку према
-        ads: false,
+        ads: true,
         // Трейлеры
         trailers: false,
         // Установка прокси для запросов
@@ -237,19 +236,19 @@ Arrays.extend(window.lampa_settings,{
     iptv: false,
 
     // Показать ленту
-    feed: true,
+    feed: false,
 
     // Различные сервисы в приложении
-    services: true,
+    services: false,
 
     // Подключить YouTube API
     youtube: true,
 
     // Определять гео по IP, иначе будет RU
-    geo: true,
+    geo: false,
 
     // Использовать поиск зеркал
-    mirrors: true,
+    mirrors: false,
 
     // Режим разработчика
     developer: {
@@ -266,6 +265,8 @@ Arrays.extend(window.lampa_settings,{
     fix_widget: window.localStorage.getItem('fix_widget') ? true : false,
 })
 
+
+if(Storage.get('source', 'tmdb') == 'cub') Storage.set('source', 'tmdb', true)
 
 // Если отключили 
 if(window.localStorage.getItem('remove_white_and_demo')){
@@ -688,9 +689,6 @@ function startApp(){
 
     ServiceTorserver.init()
     LoadingProgress.status('ServiceTorserver init')
-
-    ServiceWatched.init()
-    LoadingProgress.status('ServiceWatched init')
 
     ServiceSettings.init()
     LoadingProgress.status('ServiceSettings init')

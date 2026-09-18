@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'tmdb_http_proxy' => env('TMDB_HTTP_PROXY'),
     'device_code_ttl' => (int) env('LAMPA_DEVICE_CODE_TTL', 300),
     'premium_until' => env('LAMPA_PREMIUM_UNTIL', '2099-12-31T00:00:00.000Z'),
     'manual_device_code_secret' => env('MANUAL_DEVICE_CODE_SECRET'),

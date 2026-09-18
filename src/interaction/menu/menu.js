@@ -202,9 +202,11 @@ function ready(){
 
         if(action == 'movie' || action == 'tv' || action == 'anime'){
             Router.call('category', {
-                url: action,
+                url: action == 'anime' ? 'tv' : action,
+                genres: action == 'anime' ? 16 : undefined,
+                orig_lang: action == 'anime' ? 'ja' : undefined,
                 title: (action == 'movie' ? Lang.translate('menu_movies') : action == 'anime' ? Lang.translate('menu_anime') : Lang.translate('menu_tv')) + ' - ' + Storage.field('source').toUpperCase(),
-                source: action == 'anime' ? 'cub' : Storage.field('source')
+                source: action == 'anime' ? 'tmdb' : Storage.field('source')
             })
         }
 

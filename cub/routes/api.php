@@ -8,10 +8,14 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\StorageController;
 use App\Http\Controllers\Api\TimelineController;
+use App\Http\Controllers\Api\TmdbController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/device/add', [DeviceController::class, 'add']);
+Route::get('/tmdb/{type}/{path}', TmdbController::class)
+    ->where('type', 'api|image')
+    ->where('path', '.+');
 Route::post('/device/code/manual', [DeviceController::class, 'manual']);
 
 Route::middleware('lampa.auth')->group(function (): void {

@@ -1,0 +1,4 @@
+{
+    "TMDB proxy is not configured": "HTTP-прокси для TMDB не настроен",
+    "TMDB connection failed": "Не удалось подключиться к TMDB через HTTP-прокси"
+}

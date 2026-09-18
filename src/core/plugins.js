@@ -198,17 +198,7 @@ function loadBlackList(call){
             call([].concat(res.cub, res.custom))
         }
 
-    _network.silent('https://cub.rip/api/plugins/blacklist',(result)=>{
-        let list = result.map(a=>a.url)
-
-        Storage.set('plugins_blacklist', list)
-
-        status.append('cub', list)
-    },()=>{
-        status.append('cub', Storage.get('plugins_blacklist','[]'))
-    }, false, {
-        timeout: 1000 * 5
-    })
+    status.append('cub', [])
 
     _network.silent('./plugins_black_list.json',(list)=>{
         status.append('custom', list)

@@ -201,7 +201,6 @@ function init(){
     let screensaver_types = {
         'nature': '#{settings_param_screensaver_nature}',
         'chrome': 'ChromeCast',
-        'cub': 'CUB',
         'aerial': 'Aerial'
     }
 
@@ -596,8 +595,7 @@ select('player_hls_method',{
 
 
 select('source',{
-    'tmdb': 'TMDB',
-    'cub': 'CUB'
+    'tmdb': 'TMDB'
 },'tmdb')
 
 select('start_page', {
@@ -751,8 +749,6 @@ select('account_email','','')
 select('account_password','','')
 select('device_name','','Lampa')
 select('player_nw_path','','C:/Program Files/VideoLAN/VLC/vlc.exe')
-select('tmdb_proxy_api','','')
-select('tmdb_proxy_image','','')
 // Настройки VLC API
 select('vlc_api_password', '', '123456')
 

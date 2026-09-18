@@ -3,12 +3,15 @@ let object = {
     github: 'https://github.com/yumata/lampa-source',
     css_version: '3.1.6',
     app_version: '3.1.6',
-    cub_site: 'cub.rip',
     apk_link_download: 'https://github.com/lampa-app/LAMPA/releases/download/v1.12.3/app-lite-release.apk'
 }
 
 let plugins = []
 let settings = ()=> window.lampa_settings || {}
+
+Object.defineProperty(object, 'cub_site', {
+    get: ()=> readStringSetting('account_domain', '127.0.0.1:8000').replace(/^https?:\/\//, '').replace(/\/+$/, '')
+})
 
 function readStringSetting(name, fallback){
     let value = settings()[name]
@@ -20,10 +23,6 @@ function readArraySetting(name, fallback){
     let value = settings()[name]
 
     return Object.prototype.toString.call(value) === '[object Array]' && value.length ? value : fallback
-}
-
-function hasSetting(name){
-    return Object.prototype.hasOwnProperty.call(settings(), name)
 }
 
 Object.defineProperty(object, 'app_digital', { get: ()=> parseInt(object.app_version.replace(/\./g,'')) })
@@ -60,7 +59,7 @@ Object.defineProperty(object, 'github_lampa', {
  * Старые зеркала, которые не используются больше, но могут быть полезны для обратной совместимости
  */
 Object.defineProperty(object, 'old_mirrors', {
-    get: ()=> ['cub.red', 'standby.cub.red', 'kurwa-bober.ninja', 'nackhui.com'],
+    get: ()=> ['cub.rip', 'cub.red', 'standby.cub.red', 'kurwa-bober.ninja', 'nackhui.com'],
     set: ()=> {}
 })
 
@@ -69,26 +68,14 @@ Object.defineProperty(object, 'old_mirrors', {
  */
 Object.defineProperty(object, 'cub_mirrors', {
     get: ()=> {
-        let lampa = ['cub.rip', 'durex.monster', 'cubnotrip.top']
         let forced = settings().cub_mirrors
-        let users = localStorage.getItem('cub_mirrors') || '[]'
-
-        try {
-            users = JSON.parse(users)
-        } catch (e) {
-            users = []
-        }
 
         // Explicitly provided array replaces built-in mirrors, including [] to disable mirror checks.
         if(Object.prototype.toString.call(forced) === '[object Array]'){
             return forced
         }
 
-        if(Object.prototype.toString.call( users ) === '[object Array]' && users.length){
-            return lampa.concat(users)
-        }
-
-        return lampa
+        return []
     },
     set: ()=> {}
 })
@@ -97,7 +84,7 @@ Object.defineProperty(object, 'cub_mirrors', {
  * Список зеркал для сокета, вынесены отдельно, так как могут отличаться от обычных зеркал
  */
 Object.defineProperty(object, 'soc_mirrors', {
-    get: ()=> ['cub.red', 'kurwa-bober.ninja', 'nackhui.com'],
+    get: ()=> [],
     set: ()=> {}
 })
 
@@ -117,7 +104,7 @@ Object.defineProperty(object, 'cub_domain', {
             return use
         }
 
-        return hasSetting('cub_mirrors') ? '' : object.cub_mirrors[0]
+        return object.cub_site
     } 
 })
 

@@ -1,16 +1,13 @@
 import Storage from '../storage/storage'
-import Utils from '../../utils/utils'
+import Backend from '../backend'
 
 let broken_images = 0
 
-function proxy(name){
-    let proxy = Storage.field(name)
+function proxy(path){
+    let settings = window.lampa_settings || {}
+    let base = settings.tmdb_proxy_url || Backend.url('tmdb')
 
-    if(proxy.length > 0 && proxy.charAt(proxy.length - 1) == '/'){
-        proxy = proxy.substring(0, proxy.length - 1)
-    }
-
-    return Utils.checkHttp(proxy)
+    return base.replace(/\/+$/, '') + '/' + path
 }
 
 /**
@@ -19,9 +16,7 @@ function proxy(name){
  * @return {string} Проксированный URL запроса
  */
 function api(url){
-    let base  = Utils.protocol() + 'api.themoviedb.org/3/' + url
-
-    return Storage.field('proxy_tmdb') && Storage.field('tmdb_proxy_api') ? proxy('tmdb_proxy_api') + '/' + base : base
+    return Storage.field('proxy_tmdb') ? proxy('api/' + url) : 'https://api.themoviedb.org/3/' + url
 }
 
 /**
@@ -30,9 +25,9 @@ function api(url){
  * @return {string} Проксированный URL изображения
  */
 function image(url){
-    let base  = Utils.protocol() + 'image.tmdb.org/' + url
+    url = url.replace(/\/+/g, '/')
 
-    return Storage.field('proxy_tmdb') && Storage.field('tmdb_proxy_image') ? proxy('tmdb_proxy_image') + '/' + base : base
+    return Storage.field('proxy_tmdb') ? proxy('image/' + url) : 'https://image.tmdb.org/' + url
 }
 
 /**
@@ -44,7 +39,7 @@ function broken(){
     if(broken_images > 50){
         broken_images = 0
 
-        if(Storage.field('tmdb_proxy_image') && Storage.field('proxy_tmdb_auto')) Storage.set('proxy_tmdb', true)
+        if(Storage.field('proxy_tmdb_auto')) Storage.set('proxy_tmdb', true)
     }
 }
 

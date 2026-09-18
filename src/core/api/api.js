@@ -6,7 +6,6 @@ import Arrays from '../../utils/arrays'
 import Storage from '../storage/storage'
 import TMDB from './sources/tmdb'
 import CUB  from './sources/cub'
-import Manifest from '../manifest'
 import Lang from '../lang'
 import LineModule from '../../interaction/items/line/module/module'
 
@@ -40,6 +39,7 @@ function availableDiscovery(){
     let active = Storage.get('source','tmdb')
 
     for(let key in sources){
+        if(key == 'cub') continue
         console.log('Api','discovery check:',key, sources[key].discovery ? true : false, typeof sources[key].discovery)
 
         if(sources[key].discovery) {
@@ -211,9 +211,7 @@ function favorite(params = {}, oncomplite, onerror){
  * @param {function} onerror 
  */
 function relise(params, oncomplite, onerror){
-    network.silent(Utils.protocol() + 'tmdb.'+Manifest.cub_site+'?sort=releases&results=20&page='+params.page,(data)=>{
-        oncomplite(Utils.addSource(data, 'cub'))
-    }, onerror)
+    TMDB.get('movie/now_playing', params, oncomplite, onerror)
 }
 
 function partKeywords(parts, type, shift = 0, filter = [], req_params = {}){
