@@ -17,7 +17,7 @@
     "chokidar": "^3.5.2",
     "gulp": "^5.0.1",
     "gulp-concat": "^2.6.1",
-    "gulp-newer": "^1.4.0",
+    "gulp-changed": "^4.0.3",
     "plugin-error": "^2.0.1",
     "sass": "^1.43.4",
     "through2": "^4.0.2",
@@ -27,7 +27,7 @@
     "@babel/core": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
     "@rollup/plugin-babel": "^5.3.0",
-    "@rollup/plugin-commonjs": "^21.0.0",
+    "@rollup/plugin-commonjs": "^28.0.9",
     "@rollup/stream": "^2.0.0",
     "browser-sync": "^3.0.4",
     "doctrine": "^3.0.0",
@@ -38,10 +38,12 @@
     "gulp-uglifycss": "^1.1.0",
     "redis": "^4.0.2",
     "rollup": "^2.80.0",
-    "rollup-plugin-regenerator": "^0.3.0",
     "rollup-plugin-web-worker-loader": "^1.6.1",
     "subsrt": "^1.1.1",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
+  },
+  "overrides": {
+    "vinyl": "^3.0.1"
   }
 }

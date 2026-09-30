@@ -14,7 +14,7 @@ var concat         = require('gulp-concat'),
     uglify         = require('gulp-uglify-es').default,
     uglifycss      = require('gulp-uglifycss'),
     browser        = require('browser-sync').create(),
-    newer          = require('gulp-newer'),
+    changed        = require('gulp-changed'),
     autoprefixer   = require('gulp-autoprefixer'),
     fileinclude    = require('gulp-file-include'),
     replace        = require('gulp-replace'),
@@ -36,7 +36,6 @@ var babel = require('@rollup/plugin-babel').babel;
 var commonjs = require('@rollup/plugin-commonjs');
 // Add support for importing from node_modules folder like import x from 'module-name'
 var nodeResolve = require('@rollup/plugin-node-resolve');
-var regenerator = require('rollup-plugin-regenerator');
 
 
 var cache;
@@ -300,7 +299,7 @@ function index_github(){
 /** Сверяем файлы **/
 function sync_task(path){
     return src([pubFolder + '**/*'])
-        .pipe(newer(bulFolder+path))
+        .pipe(changed(bulFolder+path))
         .pipe(dest(bulFolder+path));
 }
 
@@ -318,7 +317,7 @@ function sync_github(){
 }
 function sync_doc(){
     return src([idxFolder + 'doc/' + '**/*'])
-        .pipe(newer(docFolder))
+        .pipe(changed(docFolder))
         .pipe(dest(docFolder));
 }
 
