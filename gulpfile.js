@@ -178,7 +178,12 @@ function plugins(done) {
     fs.readdirSync(plgFolder).filter(function (file) {
         return fs.statSync(plgFolder+'/'+file).isDirectory();
     }).forEach(folder => {
-        bubbleFile(folder+'/'+folder+'.js')
+        const entry = folder+'/'+folder+'.js';
+        const entryPath = path.join(plgFolder, entry);
+
+        if (!fs.existsSync(entryPath) || !fs.statSync(entryPath).isFile()) return;
+
+        bubbleFile(entry)
 
         if (fs.existsSync(plgFolder+'/'+folder+'/css')) {
             plugin_sass(plgFolder+'/'+folder)
