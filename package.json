@@ -43,6 +43,9 @@
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
   },
+  "allowScripts": {
+    "@parcel/watcher@2.6.0": true
+  },
   "overrides": {
     "vinyl": "^3.0.1"
   }
