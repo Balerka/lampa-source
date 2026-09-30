@@ -19,14 +19,14 @@ class TmdbProxyTest extends TestCase
     {
         parent::setUp();
 
-        config(['lampa.tmdb_http_proxy' => 'user:password@85.137.94.165:8000']);
+        config(['proxy.list' => ['http://user:password@proxy.example.com:8000']]);
         Http::preventStrayRequests();
     }
 
     public function test_api_uses_authenticated_proxy_and_preserves_query(): void
     {
         Http::fake(function (Request $request, array $options) {
-            $this->assertSame('http://user:password@85.137.94.165:8000', $options['proxy']);
+            $this->assertSame('http://user:password@proxy.example.com:8000', $options['proxy']);
             $this->assertFalse($options['allow_redirects']);
             $this->assertSame('https://api.themoviedb.org/3/search/movie?api_key=test&query=Hello%20world&language=ru', $request->url());
 
@@ -39,7 +39,6 @@ class TmdbProxyTest extends TestCase
 
     public function test_images_preserve_bytes_and_cache_headers(): void
     {
-        config(['lampa.tmdb_http_proxy' => 'http://user:password@85.137.94.165:8000']);
         Http::fake(['https://image.tmdb.org/t/p/w500/poster.jpg' => Http::response("\xff\xd8image", 200, [
             'Content-Type' => 'image/jpeg',
             'Cache-Control' => 'public, max-age=3600',
@@ -51,9 +50,52 @@ class TmdbProxyTest extends TestCase
             ->assertHeader('ETag', 'poster')->assertHeader('Cache-Control', 'max-age=3600, public');
     }
 
+    public function test_proxy_authentication_failure_switches_to_the_next_proxy(): void
+    {
+        $proxies = ['http://first.example.com:8000', 'http://second.example.com:8000'];
+        config(['proxy.list' => $proxies]);
+        $attempts = [];
+
+        Http::fake(function (Request $request, array $options) use (&$attempts) {
+            $attempts[] = $options['proxy'];
+
+            return count($attempts) === 1
+                ? Http::response('', 407)
+                : Http::response(['id' => 123]);
+        });
+
+        $this->getJson('/api/tmdb/api/movie/123')->assertOk()->assertJsonPath('id', 123);
+        $this->assertSame($proxies, $attempts);
+    }
+
+    public function test_exhausted_proxies_do_not_fall_back_to_direct_connection(): void
+    {
+        $proxies = ['http://first.example.com:8000', 'http://second.example.com:8000'];
+        config(['proxy.list' => $proxies]);
+        $attempts = [];
+
+        Http::fake(function (Request $request, array $options) use (&$attempts) {
+            $attempts[] = $options['proxy'];
+
+            return Http::response('', 407);
+        });
+
+        $this->getJson('/api/tmdb/api/movie/123')->assertStatus(407);
+        $this->assertSame($proxies, $attempts);
+    }
+
+    public function test_invalid_proxy_scheme_does_not_send_requests(): void
+    {
+        config(['proxy.list' => ['ftp://proxy.example.com:8000']]);
+        Http::fake();
+
+        $this->getJson('/api/tmdb/api/movie/123')->assertStatus(503);
+        Http::assertNothingSent();
+    }
+
     public function test_missing_proxy_does_not_fall_back_to_direct_connection(): void
     {
-        config(['lampa.tmdb_http_proxy' => '']);
+        config(['proxy.list' => []]);
         Http::fake();
 
         $this->getJson('/api/tmdb/api/movie/123')->assertStatus(503);
@@ -62,7 +104,7 @@ class TmdbProxyTest extends TestCase
 
     public function test_connection_failure_does_not_expose_credentials(): void
     {
-        Http::fake(['*' => Http::failedConnection('user:password@85.137.94.165:8000')]);
+        Http::fake(['*' => Http::failedConnection('user:password@proxy.example.com:8000')]);
 
         $this->getJson('/api/tmdb/api/movie/123')->assertStatus(502)->assertDontSee('password');
     }

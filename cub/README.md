@@ -24,10 +24,18 @@ Production-ready бэкенд для кастомной авторизации �
 Укажите в `cub/.env` (при работе из каталога `cub` — в `.env`) реальный логин и пароль прокси:
 
 ```dotenv
-TMDB_HTTP_PROXY=http://xxxxx:xxxxx@85.137.94.165:8000
+HTTP_PROXY="http://username:password@proxy.example.com:8000"
 ```
 
 Также принимается формат без `http://`. Специальные символы в логине и пароле нужно URL-кодировать.
+Прокси подключён через [balerka/laravel-proxy](https://github.com/Balerka/laravel-proxy) в Laravel-приложении `cub`.
+Для последовательного переключения при ошибках соединения можно указать несколько прокси:
+
+```dotenv
+HTTP_PROXY='["http://username:password@proxy1.example.com:8000","http://username:password@proxy2.example.com:8000"]'
+```
+
+Настройка применяется к запросам TMDB API и изображений; остальные HTTP-клиенты Laravel автоматически её не получают.
 После изменения выполните `php artisan config:clear` из каталога `cub`.
 
 При включённом параметре «Проксировать TMDB» клиент обращается к Laravel, который запрашивает
