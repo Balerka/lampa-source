@@ -84,7 +84,7 @@ function login(callback){
             code.remove()
             img.removeClass('hide')
 
-            Utils.imgLoad(img, Utils.protocol() + Manifest.qr_device_add, ()=>{
+            Utils.imgLoad(img, Utils.checkHttp(Manifest.qr_device_add), ()=>{
                 img.addClass('loaded')
             })
         })

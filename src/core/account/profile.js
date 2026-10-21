@@ -50,7 +50,7 @@ function update(){
         let icon    = Permit.account.profile.icon || 'l_1'
         let path    = user_id ? user_id + '/' + icon : icon
 
-        Utils.imgLoad(profile_icon.find('img'), Utils.protocol() + Manifest.account_assets_domain + '/storage/profiles/' + path + '.webp', ()=>{}, (img)=>{
+        Utils.imgLoad(profile_icon.find('img'), Utils.checkHttp(Manifest.account_assets_domain) + '/storage/profiles/' + path + '.webp', ()=>{}, (img)=>{
             img.src = './img/img_load.svg'
         })
     }
@@ -127,7 +127,7 @@ function select(callback){
                     let path = elem.user_id ? elem.user_id + '/' + elem.icon : elem.icon
                     elem.title    = elem.name
                     elem.template = 'selectbox_icon'
-                    elem.icon     = '<img src="' + Utils.protocol() + Manifest.account_assets_domain +'/storage/profiles/'+path+'.webp" />'
+                    elem.icon     = '<img src="' + Utils.checkHttp(Manifest.account_assets_domain) +'/storage/profiles/'+path+'.webp" />'
                     elem.clone    = clone[index]
                     elem.subtitle = elem.main ? Lang.translate('account_profile_main') : elem.child ? Lang.translate('account_profile_child') + ' ' + '(' + Lang.translate('filter_rating_to') + ' ' + (elem.age || 12) + ')' : ''
 

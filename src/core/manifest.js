@@ -10,13 +10,17 @@ let plugins = []
 let settings = ()=> window.lampa_settings || {}
 
 Object.defineProperty(object, 'cub_site', {
-    get: ()=> readStringSetting('account_domain', '127.0.0.1:8000').replace(/^https?:\/\//, '').replace(/\/+$/, '')
+    get: ()=> normalizeDomain(readStringSetting('account_domain', '127.0.0.1:8000'))
 })
 
 function readStringSetting(name, fallback){
     let value = settings()[name]
 
     return typeof value == 'string' && value.trim() ? value.trim() : fallback
+}
+
+function normalizeDomain(value){
+    return value.trim().replace(/^(https?:)?\/\//i, '').replace(/\/+$/, '')
 }
 
 function readArraySetting(name, fallback){
@@ -72,7 +76,7 @@ Object.defineProperty(object, 'cub_mirrors', {
 
         // Explicitly provided array replaces built-in mirrors, including [] to disable mirror checks.
         if(Object.prototype.toString.call(forced) === '[object Array]'){
-            return forced
+            return forced.map(normalizeDomain)
         }
 
         return []
@@ -97,7 +101,7 @@ Object.defineProperty(object, 'cub_domain', {
         let use = localStorage.getItem('cub_domain') || ''
 
         if(forced){
-            return forced
+            return normalizeDomain(forced)
         }
 
         if(object.cub_mirrors.indexOf(use) > -1){
@@ -109,17 +113,17 @@ Object.defineProperty(object, 'cub_domain', {
 })
 
 Object.defineProperty(object, 'account_site', {
-    get: ()=> readStringSetting('account_site', object.cub_site),
+    get: ()=> normalizeDomain(readStringSetting('account_site', object.cub_site)),
     set: ()=> {}
 })
 
 Object.defineProperty(object, 'account_domain', {
-    get: ()=> readStringSetting('account_domain', object.cub_domain),
+    get: ()=> normalizeDomain(readStringSetting('account_domain', object.cub_domain)),
     set: ()=> {}
 })
 
 Object.defineProperty(object, 'account_assets_domain', {
-    get: ()=> readStringSetting('account_assets_domain', object.cub_domain),
+    get: ()=> readStringSetting('account_assets_domain', readStringSetting('account_domain', object.cub_domain)).replace(/\/+$/, ''),
     set: ()=> {}
 })
 

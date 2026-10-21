@@ -36,7 +36,7 @@ function account(){
             code.remove()
             img.removeClass('hide')
 
-            Utils.imgLoad(img, Utils.protocol() + Manifest.qr_site, ()=>{
+            Utils.imgLoad(img, Utils.checkHttp(Manifest.qr_site), ()=>{
                 img.addClass('loaded')
             })
         })

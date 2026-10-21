@@ -29,6 +29,22 @@ test('saved public mirrors cannot re-enable CUB fallback', () => {
     expect(Manifest.soc_mirrors).toEqual([])
 })
 
+test('configured HTTPS addresses work with legacy domain consumers and storage endpoints', () => {
+    window.lampa_settings = {
+        account_domain: 'https://cub.lampa.riverinn.ru/',
+        account_site: 'https://cub.lampa.riverinn.ru/',
+        cub_domain: 'https://cub.lampa.riverinn.ru/',
+        cub_mirrors: ['https://cub.lampa.riverinn.ru/']
+    }
+
+    expect(Backend.url('storage/data/search_history/array_string?full=true')).toBe('https://cub.lampa.riverinn.ru/api/storage/data/search_history/array_string?full=true')
+    expect(Manifest.account_domain).toBe('cub.lampa.riverinn.ru')
+    expect(Manifest.account_site).toBe('cub.lampa.riverinn.ru')
+    expect(Manifest.cub_domain).toBe('cub.lampa.riverinn.ru')
+    expect(Manifest.cub_mirrors).toEqual(['cub.lampa.riverinn.ru'])
+    expect(Manifest.qr_site).toBe('https://cub.lampa.riverinn.ru/img/other/qr-code-strong.png')
+})
+
 test('old CUB cards load through TMDB', () => {
     const params = {id: 16221, method: 'movie', source: 'cub'}
     const complete = vi.fn()

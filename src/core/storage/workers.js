@@ -4,13 +4,13 @@ import Reguest from '../../utils/reguest'
 import Arrays from '../../utils/arrays'
 import Socket from '../socket'
 import Account from '../account/account'
-import Manifest from '../manifest'
+import Backend from '../backend'
 
 
 let network = new Reguest()
 
 function api(){
-    return Utils.protocol() + Manifest.account_domain + '/api/'
+    return Backend.url()
 }
 
 class WorkerArray{
