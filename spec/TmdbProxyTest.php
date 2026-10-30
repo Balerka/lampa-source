@@ -1,9 +1,11 @@
 <?php
 
+use App\Services\TmdbProxyResolver;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\TestCase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class TmdbProxyTest extends TestCase
 {
@@ -20,6 +22,7 @@ class TmdbProxyTest extends TestCase
         parent::setUp();
 
         config(['proxy.list' => ['http://user:password@proxy.example.com:8000']]);
+        $this->mock(TmdbProxyResolver::class)->shouldReceive('resolve')->andReturn('1.2.3.4');
         Http::preventStrayRequests();
     }
 
@@ -28,6 +31,8 @@ class TmdbProxyTest extends TestCase
         Http::fake(function (Request $request, array $options) {
             $this->assertSame('http://user:password@proxy.example.com:8000', $options['proxy']);
             $this->assertFalse($options['allow_redirects']);
+            $this->assertSame(['api.themoviedb.org:443:1.2.3.4:443'], $options['curl'][CURLOPT_CONNECT_TO]);
+            $this->assertTrue($options['verify']);
             $this->assertSame('https://api.themoviedb.org/3/search/movie?api_key=test&query=Hello%20world&language=ru', $request->url());
 
             return Http::response(['results' => [['id' => 123]]]);
@@ -39,11 +44,16 @@ class TmdbProxyTest extends TestCase
 
     public function test_images_preserve_bytes_and_cache_headers(): void
     {
-        Http::fake(['https://image.tmdb.org/t/p/w500/poster.jpg' => Http::response("\xff\xd8image", 200, [
-            'Content-Type' => 'image/jpeg',
-            'Cache-Control' => 'public, max-age=3600',
-            'ETag' => 'poster',
-        ])]);
+        Http::fake(function (Request $request, array $options) {
+            $this->assertSame(['image.tmdb.org:443:1.2.3.4:443'], $options['curl'][CURLOPT_CONNECT_TO]);
+            $this->assertTrue($options['verify']);
+
+            return Http::response("\xff\xd8image", 200, [
+                'Content-Type' => 'image/jpeg',
+                'Cache-Control' => 'public, max-age=3600',
+                'ETag' => 'poster',
+            ]);
+        });
 
         $this->get('/api/tmdb/image/t/p/w500/poster.jpg')->assertOk()
             ->assertContent("\xff\xd8image")->assertHeader('Content-Type', 'image/jpeg')
@@ -109,6 +119,30 @@ class TmdbProxyTest extends TestCase
         $this->getJson('/api/tmdb/api/movie/123')->assertStatus(502)->assertDontSee('password');
     }
 
+    public function test_connection_failure_logs_transport_diagnostics_without_secrets(): void
+    {
+        config(['app.debug' => false]);
+
+        $exception = new \GuzzleHttp\Exception\ConnectException(
+            'Failed to connect using user:password@proxy.example.com:8000',
+            new \GuzzleHttp\Psr7\Request('GET', 'https://api.themoviedb.org/3/movie/123?api_key=secret'),
+            null,
+            ['errno' => 56, 'http_connectcode' => 407, 'error' => 'user:password', 'url' => '?api_key=secret'],
+        );
+
+        Log::shouldReceive('warning')->once()->with('TMDB proxy connection failed', [
+            'type' => 'api',
+            'proxy_count' => 1,
+            'errno' => 56,
+            'http_connectcode' => 407,
+        ]);
+
+        Http::fake(fn () => throw new \Illuminate\Http\Client\ConnectionException('Connection failed', 0, $exception));
+
+        $this->getJson('/api/tmdb/api/movie/123?api_key=secret')->assertStatus(502)
+            ->assertDontSee('password')->assertDontSee('secret');
+    }
+
     public function test_upstream_error_status_is_preserved(): void
     {
         Http::fake(['*' => Http::response(['status_code' => 7], 401)]);
@@ -131,5 +165,52 @@ class TmdbProxyTest extends TestCase
         $this->getJson('/api/tmdb/api/movie/%2e%2e/account')->assertStatus(400);
         $this->getJson('/api/tmdb/other/movie/123')->assertNotFound();
         Http::assertNothingSent();
+    }
+
+    public function test_dns_resolution_uses_the_proxy_and_caches_only_for_the_dns_ttl(): void
+    {
+        Http::fake(function (Request $request, array $options) {
+            $this->assertSame('http://user:password@proxy.example.com:8000', $options['proxy']);
+            $this->assertTrue($options['verify']);
+            $this->assertFalse($options['allow_redirects']);
+            $this->assertSame('https://cloudflare-dns.com/dns-query?name=image.tmdb.org&type=A', $request->url());
+
+            return Http::response(['Status' => 0, 'Answer' => [
+                ['type' => 5, 'data' => 'tmdb-image-prod.b-cdn.net.', 'TTL' => 10],
+                ['type' => 1, 'data' => '1.2.3.4', 'TTL' => 60],
+            ]]);
+        });
+
+        $resolver = new TmdbProxyResolver;
+        $this->assertSame('1.2.3.4', $resolver->resolve('image.tmdb.org'));
+        $this->assertSame('1.2.3.4', $resolver->resolve('image.tmdb.org'));
+        Http::assertSentCount(1);
+
+        $this->travel(11)->seconds();
+        $this->assertSame('1.2.3.4', $resolver->resolve('image.tmdb.org'));
+        Http::assertSentCount(2);
+    }
+
+    public function test_invalid_dns_answers_do_not_send_tmdb_requests(): void
+    {
+        $this->app->instance(TmdbProxyResolver::class, new TmdbProxyResolver);
+        Http::fake(['https://cloudflare-dns.com/*' => Http::response(['Status' => 0, 'Answer' => [
+            ['type' => 1, 'data' => '127.0.0.1', 'TTL' => 30],
+            ['type' => 1, 'data' => '10.0.0.1', 'TTL' => 30],
+        ]])]);
+
+        $this->getJson('/api/tmdb/api/movie/123')->assertStatus(502);
+        Http::assertSentCount(1);
+        $this->getJson('/api/tmdb/api/movie/123')->assertStatus(502);
+        Http::assertSentCount(2);
+    }
+
+    public function test_dns_connection_failure_does_not_fall_back_to_direct_connection(): void
+    {
+        $this->app->instance(TmdbProxyResolver::class, new TmdbProxyResolver);
+        Http::fake(['https://cloudflare-dns.com/*' => Http::failedConnection()]);
+
+        $this->getJson('/api/tmdb/api/movie/123')->assertStatus(502);
+        Http::assertNotSent(fn (Request $request) => parse_url($request->url(), PHP_URL_HOST) === 'api.themoviedb.org');
     }
 }

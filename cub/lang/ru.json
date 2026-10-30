@@ -1,4 +1,5 @@
 {
     "TMDB proxy is not configured": "HTTP-прокси для TMDB не настроен",
-    "TMDB connection failed": "Не удалось подключиться к TMDB через HTTP-прокси"
+    "TMDB connection failed": "Не удалось подключиться к TMDB через HTTP-прокси",
+    "TMDB DNS resolution failed": "Не удалось определить IP-адрес TMDB через HTTP-прокси"
 }
